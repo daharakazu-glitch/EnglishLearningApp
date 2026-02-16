@@ -1,12 +1,18 @@
 :root {
-    --primary-color: #2c3e50;
-    --accent-color: #3498db;
-    --highlight-color: #f1c40f;
-    --text-color: #333;
-    --bg-color: #f9f9f9;
+    --primary-color: #001f3f;
+    /* Navy Blue */
+    --accent-color: #0074D9;
+    /* Lighter Blue for interactions */
+    --highlight-color: #FFDC00;
+    /* Yellow */
+    --text-color: #111;
+    --bg-color: #f0f4f8;
+    /* Very light blue-grey background */
     --white: #ffffff;
     --border-radius: 8px;
     --font-main: "Times New Roman", Times, serif;
+    --base-font-size: 20px;
+    /* Increased from default */
 }
 
 * {
@@ -19,35 +25,46 @@ body {
     padding: 0;
     background-color: var(--bg-color);
     color: var(--text-color);
-    line-height: 1.6;
+    line-height: 1.8;
+    font-size: var(--base-font-size);
 }
 
 header {
     background-color: var(--primary-color);
     color: var(--white);
-    padding: 1rem;
-    text-align: center;
+    padding: 1.5rem;
     display: flex;
     justify-content: space-between;
     align-items: center;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
 }
 
 #app-title {
     margin: 0;
     flex-grow: 1;
-    text-align: center;
+    text-align: left;
+    font-size: 1.8rem;
 }
 
-.icon-btn {
-    background: none;
-    border: none;
+/* Updated Print Button Styles */
+.header-btn {
+    background-color: var(--accent-color);
     color: var(--white);
-    font-size: 1.5rem;
+    border: 2px solid var(--white);
+    padding: 0.8rem 1.5rem;
+    border-radius: 30px;
+    font-size: 1.1rem;
     cursor: pointer;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: all 0.2s;
 }
 
-.icon-btn:hover {
-    color: var(--accent-color);
+.header-btn:hover {
+    background-color: var(--white);
+    color: var(--primary-color);
 }
 
 nav {
@@ -63,22 +80,24 @@ nav {
 .tab-btn {
     background: none;
     border: none;
-    padding: 1rem 2rem;
+    padding: 1.2rem 3rem;
     font-family: var(--font-main);
-    font-size: 1.2rem;
+    font-size: 1.3rem;
     cursor: pointer;
-    border-bottom: 3px solid transparent;
+    border-bottom: 4px solid transparent;
     transition: all 0.3s;
+    color: #555;
 }
 
 .tab-btn.active {
-    border-bottom-color: var(--accent-color);
-    color: var(--accent-color);
+    border-bottom-color: var(--primary-color);
+    color: var(--primary-color);
     font-weight: bold;
+    background-color: #eef4fa;
 }
 
 main {
-    max-width: 800px;
+    max-width: 900px;
     margin: 2rem auto;
     padding: 0 1rem;
 }
@@ -105,54 +124,66 @@ main {
 /* Text Tab Styles */
 .audio-player-container {
     background-color: var(--white);
-    padding: 1rem;
+    padding: 1.5rem;
     border-radius: var(--border-radius);
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     display: flex;
     align-items: center;
-    gap: 1rem;
+    gap: 1.5rem;
     margin-bottom: 2rem;
+    border: 1px solid #ddd;
 }
 
 .audio-control {
-    background-color: var(--accent-color);
+    background-color: var(--primary-color);
     color: var(--white);
     border: none;
-    width: 40px;
-    height: 40px;
+    width: 60px;
+    /* Larger */
+    height: 60px;
+    /* Larger */
     border-radius: 50%;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
+    font-size: 1.5rem;
+    transition: transform 0.1s;
+}
+
+.audio-control:active {
+    transform: scale(0.95);
 }
 
 #audio-status {
     margin-left: 1rem;
     font-style: italic;
-    color: #666;
+    color: #555;
+    font-weight: bold;
 }
 
 .text-content {
     background-color: var(--white);
-    padding: 2rem;
+    padding: 3rem;
+    /* More padding */
     border-radius: var(--border-radius);
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
-    font-size: 1.3rem;
-    /* "Viewable size" */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+    font-size: 1.5rem;
+    /* Larger text */
     text-align: justify;
     white-space: pre-wrap;
-    /* Preserve paragraphs */
-    margin-bottom: 1rem;
+    margin-bottom: 1.5rem;
+    line-height: 2.0;
 }
 
 #translation-container {
-    background-color: #f0f7fb;
-    padding: 1.5rem;
+    background-color: #e8f0fe;
+    padding: 2rem;
     border-radius: var(--border-radius);
-    margin-bottom: 1rem;
+    margin-bottom: 1.5rem;
     white-space: pre-wrap;
-    border-left: 4px solid var(--accent-color);
+    border-left: 6px solid var(--primary-color);
+    font-size: 1.3rem;
 }
 
 #translation-container.hidden {
@@ -162,37 +193,45 @@ main {
 #toggle-translation-btn {
     display: block;
     margin: 0 auto;
-    padding: 0.5rem 1rem;
-    background-color: #eee;
+    padding: 1rem 2rem;
+    background-color: #ddd;
     border: none;
-    border-radius: 4px;
+    border-radius: 30px;
     cursor: pointer;
+    font-size: 1.1rem;
+    font-weight: bold;
+    color: #333;
+}
+
+#toggle-translation-btn:hover {
+    background-color: #ccc;
 }
 
 /* Highlighted words */
 .vocab-highlight {
-    background-color: rgba(241, 196, 15, 0.3);
-    /* Subtle yellow */
-    border-radius: 3px;
-    padding: 0 2px;
+    background-color: rgba(255, 220, 0, 0.4);
+    border-radius: 4px;
+    padding: 0 4px;
     cursor: pointer;
-    border-bottom: 1px dashed var(--text-color);
+    border-bottom: 2px solid var(--primary-color);
     transition: background-color 0.2s;
+    font-weight: 500;
 }
 
 .vocab-highlight:hover {
     background-color: var(--highlight-color);
+    color: #000;
 }
 
 /* Vocabulary Tab Styles */
 .vocab-list {
     display: grid;
-    gap: 1rem;
+    gap: 1.5rem;
 }
 
 .vocab-item {
     background-color: var(--white);
-    padding: 1rem;
+    padding: 1.5rem;
     border-radius: var(--border-radius);
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
     display: flex;
@@ -200,28 +239,31 @@ main {
     align-items: center;
     cursor: pointer;
     transition: transform 0.2s;
+    border-left: 6px solid transparent;
 }
 
 .vocab-item:hover {
     transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+    border-left-color: var(--primary-color);
 }
 
 .vocab-word {
-    font-size: 1.4rem;
+    font-size: 1.8rem;
     font-weight: bold;
+    color: var(--primary-color);
 }
 
 .vocab-def {
-    color: #666;
+    color: #444;
+    font-size: 1.2rem;
 }
 
 .vocab-check-line {
     display: none;
-    /* Only for print test mode */
-    border-bottom: 1px solid #333;
-    width: 200px;
-    height: 1.5rem;
+    border-bottom: 2px solid #333;
+    width: 250px;
+    height: 2rem;
 }
 
 /* Modal Styles */
@@ -231,7 +273,8 @@ main {
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(0, 0, 0, 0.5);
+    background-color: rgba(0, 31, 63, 0.8);
+    /* Dark blue overlay */
     display: flex;
     justify-content: center;
     align-items: center;
@@ -244,112 +287,109 @@ main {
 
 .modal-content {
     background-color: var(--white);
-    padding: 2rem;
+    padding: 3rem;
     border-radius: var(--border-radius);
-    width: 90%;
-    max-width: 600px;
+    width: 85%;
+    max-width: 700px;
     position: relative;
     max-height: 90vh;
     overflow-y: auto;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
 }
 
 .close-modal {
     position: absolute;
     top: 1rem;
-    right: 1.5rem;
-    font-size: 2rem;
+    right: 2rem;
+    font-size: 3rem;
     cursor: pointer;
     color: #aaa;
+    line-height: 1;
 }
 
 .close-modal:hover {
-    color: #333;
+    color: var(--primary-color);
 }
 
 #modal-word {
-    font-size: 2.5rem;
-    margin-bottom: 0.5rem;
-    color: var(--accent-color);
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    color: var(--primary-color);
+    border-bottom: 2px solid var(--accent-color);
+    display: inline-block;
 }
 
 #modal-definition {
-    font-size: 1.2rem;
-    margin-bottom: 2rem;
-    color: #555;
-    border-bottom: 1px solid #eee;
-    padding-bottom: 1rem;
+    font-size: 1.5rem;
+    margin-bottom: 2.5rem;
+    color: #333;
 }
 
 .example-block {
-    margin-bottom: 1.5rem;
-    background-color: #f0f7fb;
-    padding: 1rem;
+    margin-bottom: 2rem;
+    background-color: #f0f4f8;
+    padding: 1.5rem;
     border-radius: var(--border-radius);
-    border-left: 4px solid var(--accent-color);
+    border-left: 6px solid var(--primary-color);
 }
 
 .example-en {
-    font-size: 1.1rem;
-    margin-bottom: 0.5rem;
+    font-size: 1.4rem;
+    margin-bottom: 0.8rem;
+    font-style: italic;
 }
 
 .example-ja {
-    color: #666;
-    font-size: 0.95rem;
+    color: #555;
+    font-size: 1.1rem;
 }
 
 /* Recording Section */
 .recording-section {
-    margin-top: 2rem;
-    padding-top: 1rem;
-    border-top: 1px solid #eee;
+    margin-top: 3rem;
+    padding-top: 2rem;
+    border-top: 2px solid #eee;
     text-align: center;
 }
 
 .record-controls {
     display: flex;
     justify-content: center;
-    gap: 1rem;
-    margin-bottom: 1rem;
+    gap: 2rem;
+    margin-bottom: 1.5rem;
 }
 
 .record-control {
-    padding: 0.8rem 1.5rem;
+    padding: 1rem 2.5rem;
     border: none;
-    border-radius: 30px;
-    font-size: 1rem;
+    border-radius: 40px;
+    font-size: 1.2rem;
     cursor: pointer;
     font-family: var(--font-main);
-    transition: filter 0.2s;
+    transition: all 0.2s;
+    font-weight: bold;
 }
 
 #record-btn {
-    background-color: #e74c3c;
+    background-color: #FF4136;
+    /* Red */
     color: var(--white);
+    box-shadow: 0 4px 6px rgba(255, 65, 54, 0.3);
 }
 
 #stop-btn {
-    background-color: #95a5a6;
+    background-color: #AAAAAA;
     color: var(--white);
 }
 
 #stop-btn:not(:disabled) {
-    background-color: #7f8c8d;
-}
-
-#record-btn:hover,
-#stop-btn:not(:disabled):hover {
-    filter: brightness(1.1);
-}
-
-#record-btn:disabled,
-#stop-btn:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
+    background-color: #333;
 }
 
 .recording {
     animation: pulse 1.5s infinite;
+    background-color: #85144b !important;
+    /* Dark red */
 }
 
 @keyframes pulse {
@@ -367,65 +407,78 @@ main {
 }
 
 #score-display {
-    margin-top: 1rem;
-    font-size: 1.5rem;
+    margin-top: 1.5rem;
+    font-size: 2rem;
     font-weight: bold;
-    color: var(--accent-color);
-}
-
-#user-recording {
-    width: 100%;
-    margin-top: 1rem;
+    color: var(--primary-color);
 }
 
 /* Print Modal & Options */
 .print-options {
     display: flex;
     flex-direction: column;
-    gap: 1rem;
-    margin: 1.5rem 0;
+    gap: 1.2rem;
+    margin: 2rem 0;
 }
 
 .print-options label {
-    font-size: 1.1rem;
+    font-size: 1.3rem;
     cursor: pointer;
-    padding: 0.5rem;
+    padding: 0.8rem;
     border-radius: 4px;
+    border: 1px solid #ddd;
+    background-color: #fafafa;
 }
 
 .print-options label:hover {
-    background-color: #f0f0f0;
+    background-color: #eef4fa;
+    border-color: var(--primary-color);
 }
 
 .primary-btn {
-    background-color: var(--accent-color);
+    background-color: var(--primary-color);
     color: var(--white);
     border: none;
-    padding: 0.8rem 1.5rem;
+    padding: 1rem 2rem;
     border-radius: 4px;
-    font-size: 1rem;
+    font-size: 1.3rem;
     cursor: pointer;
     width: 100%;
+    font-weight: bold;
 }
 
 .primary-btn:hover {
-    background-color: #2980b9;
+    background-color: #003366;
 }
 
 /* Responsive */
 @media (max-width: 600px) {
+    body {
+        font-size: 18px;
+    }
+
+    header {
+        flex-direction: column;
+        gap: 1rem;
+    }
+
     .tab-btn {
         padding: 1rem;
-        font-size: 1rem;
+        font-size: 1.1rem;
     }
 
     .text-content {
         padding: 1.5rem;
-        font-size: 1.1rem;
+        font-size: 1.3rem;
     }
 
     #modal-word {
-        font-size: 2rem;
+        font-size: 2.2rem;
+    }
+
+    .header-btn {
+        width: 100%;
+        justify-content: center;
     }
 }
 
@@ -446,6 +499,8 @@ main {
         font-family: "Times New Roman", Times, serif;
         background-color: white;
         color: black;
+        font-size: 12pt;
+        /* Standard print size */
     }
 
     main {
@@ -456,46 +511,55 @@ main {
 
     .tab-content {
         display: block !important;
-        /* Show all content generally, filter by specific layout classes */
         animation: none;
     }
 
     .text-content {
         box-shadow: none;
         padding: 0;
-        margin-bottom: 2rem;
+        margin-bottom: 1rem;
+        font-size: 12pt;
+        line-height: 1.5;
     }
 
     .vocab-item {
         box-shadow: none;
         border-bottom: 1px solid #ccc;
         break-inside: avoid;
+        padding: 0.5rem 0;
+        margin: 0;
+    }
+
+    .vocab-word {
+        font-size: 14pt;
+        color: black;
     }
 
     /* 1. English Text Only */
     body.print-text-only #vocab-tab,
     body.print-text-only #translation-container,
     body.print-text-only .vocab-highlight {
-        display: none;
-    }
-
-    /* Note: Highlights are spans. To "remove" highlight style but keep text: */
-    body.print-text-only .vocab-highlight {
-        background-color: transparent !important;
-        border-bottom: none !important;
-        display: inline;
-        /* Reset display:none from group above if needed, but actually we want the text to remain */
-    }
-
-    /* Fix: Logic above hides the span entirely, which hides text. We want to just unstyle it. */
-    body.print-text-only #vocab-tab,
-    body.print-text-only #translation-container {
         display: none !important;
     }
 
     body.print-text-only .vocab-highlight {
+        /* This logic was tricky before. 
+           We actually want the text inside .vocab-highlight to show, but without style. 
+           But if we set display:none on the CLASS, it hides the element.
+           We need to NOT hide the class, but RESET the styles.
+        */
+        display: inline !important;
         background-color: transparent !important;
         border-bottom: none !important;
+        color: black !important;
+    }
+
+    /* Correction: The previous logic had a flaw. If we want TEXT ONLY, we should just hide vocab tab and translations. 
+       The highlights in the text tab should be unstyled.
+    */
+    body.print-text-only #vocab-tab,
+    body.print-text-only #translation-container {
+        display: none !important;
     }
 
 
@@ -507,8 +571,7 @@ main {
 
     body.print-text-highlight .vocab-highlight {
         background-color: #eee !important;
-        /* Light gray for print */
-        border-bottom: 1px dashed #333;
+        border-bottom: 1px dashed #333 !important;
         -webkit-print-color-adjust: exact;
     }
 
@@ -521,6 +584,8 @@ main {
         display: block !important;
         background-color: transparent;
         border: none;
+        border-top: 1px solid #ccc;
+        color: black;
     }
 
     /* 4. Vocabulary List */
@@ -534,11 +599,11 @@ main {
     }
 
     body.print-vocab-test .vocab-def {
-        display: none;
+        display: none !important;
     }
 
     body.print-vocab-test .vocab-check-line {
-        display: block;
+        display: block !important;
     }
 
     /* 6. Comprehensive */

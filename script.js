@@ -5,6 +5,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let audioChunks = [];
     let utterance = null;
     let isPlaying = false;
+    let synth = window.speechSynthesis;
 
     const elements = {
         title: document.getElementById('app-title'),
@@ -49,10 +50,13 @@ document.addEventListener('DOMContentLoaded', () => {
             appData = data;
             initApp();
         })
-        .catch(err => console.error('Error loading data:', err));
+        .catch(err => {
+            console.error('Error loading data:', err);
+            elements.textContainer.innerHTML = '<p style="color:red">Error loading content. Please refresh the page.</p>';
+        });
 
     function initApp() {
-        // Render English Text with Highlighting
+        // Render English Text
         renderText();
 
         // Render Translation
@@ -96,27 +100,47 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function setupTranslationToggle() {
         elements.toggleTranslationBtn.addEventListener('click', () => {
-            elements.translationContainer.classList.toggle('hidden');
+            const isHidden = elements.translationContainer.classList.contains('hidden');
+            if (isHidden) {
+                elements.translationContainer.classList.remove('hidden');
+                elements.toggleTranslationBtn.textContent = "Hide Translation";
+            } else {
+                elements.translationContainer.classList.add('hidden');
+                elements.toggleTranslationBtn.textContent = "Show Translation";
+            }
         });
     }
 
     // --- TTS Logic (Web Speech API) ---
     function setupTTS() {
-        if (!('speechSynthesis' in window)) {
+        if (!synth) {
             elements.audioStatus.textContent = "TTS not supported.";
             elements.playPauseBtn.disabled = true;
+            alert("Your browser does not support Text-to-Speech.");
             return;
+        }
+
+        // Ensure voices are loaded (Chrome quirk)
+        let voices = [];
+        const loadVoices = () => {
+            voices = synth.getVoices();
+        };
+        loadVoices();
+        if (speechSynthesis.onvoiceschanged !== undefined) {
+            speechSynthesis.onvoiceschanged = loadVoices;
         }
 
         elements.playPauseBtn.addEventListener('click', () => {
             if (isPlaying) {
-                window.speechSynthesis.pause();
+                // Pause
+                synth.pause();
                 isPlaying = false;
                 elements.playPauseBtn.innerHTML = '<i class="fas fa-play"></i>';
                 elements.audioStatus.textContent = "Paused";
             } else {
-                if (window.speechSynthesis.paused) {
-                    window.speechSynthesis.resume();
+                // Play or Resume
+                if (synth.paused && utterance) {
+                    synth.resume();
                 } else {
                     playText(appData.text.en);
                 }
@@ -127,18 +151,28 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         elements.stopAudioBtn.addEventListener('click', () => {
-            window.speechSynthesis.cancel();
+            synth.cancel();
             isPlaying = false;
             elements.playPauseBtn.innerHTML = '<i class="fas fa-play"></i>';
             elements.audioStatus.textContent = "Stopped";
+            utterance = null;
         });
     }
 
     function playText(text) {
-        window.speechSynthesis.cancel(); // Stop any previous
+        synth.cancel(); // Stop any previous
+
+        // Create new utterance
         utterance = new SpeechSynthesisUtterance(text);
-        utterance.lang = 'en-US'; // Default to US English
-        utterance.rate = 1.0;
+        utterance.lang = 'en-US';
+        utterance.rate = 0.9; // Slightly slower for learning
+
+        // Try to select a good English voice
+        const voices = synth.getVoices();
+        const enVoice = voices.find(v => v.lang.includes('en-US')) || voices.find(v => v.lang.includes('en'));
+        if (enVoice) {
+            utterance.voice = enVoice;
+        }
 
         utterance.onend = () => {
             isPlaying = false;
@@ -150,11 +184,24 @@ document.addEventListener('DOMContentLoaded', () => {
             console.error('SpeechSynthesis error:', e);
             isPlaying = false;
             elements.playPauseBtn.innerHTML = '<i class="fas fa-play"></i>';
-            elements.audioStatus.textContent = "Error";
+            elements.audioStatus.textContent = "Error playing audio";
+            // alert("Audio playback error: " + e.error); // Optional debug
         };
 
-        window.speechSynthesis.speak(utterance);
+        synth.speak(utterance);
     }
+
+    // Make speak available globally for example buttons
+    window.speak = function (text) {
+        synth.cancel();
+        const u = new SpeechSynthesisUtterance(text);
+        u.lang = 'en-US';
+        u.rate = 0.9;
+        const voices = synth.getVoices();
+        const enVoice = voices.find(v => v.lang.includes('en-US')) || voices.find(v => v.lang.includes('en'));
+        if (enVoice) u.voice = enVoice;
+        synth.speak(u);
+    };
 
     // --- Vocabulary Tab Logic ---
     function renderVocabList() {
@@ -198,8 +245,13 @@ document.addEventListener('DOMContentLoaded', () => {
             item.examples.forEach(ex => {
                 const exBlock = document.createElement('div');
                 exBlock.className = 'example-block';
+                // Escape simple quotes for the onclick handler string
+                const safeText = ex.en.replace(/'/g, "\\'");
                 exBlock.innerHTML = `
-                    <div class="example-en">${ex.en} <i class="fas fa-volume-up" style="cursor:pointer; color:#3498db; margin-left:5px;" onclick="speak('${ex.en.replace(/'/g, "\\'")}')"></i></div>
+                    <div class="example-en">
+                        ${ex.en} 
+                        <i class="fas fa-volume-up" style="cursor:pointer; color:#0074D9; margin-left:10px;" onclick="speak('${safeText}')" title="Listen"></i>
+                    </div>
                     <div class="example-ja">${ex.ja}</div>
                 `;
                 elements.modalExamples.appendChild(exBlock);
@@ -222,14 +274,6 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     }
-
-    // Global helper for example speech
-    window.speak = function (text) {
-        window.speechSynthesis.cancel();
-        const u = new SpeechSynthesisUtterance(text);
-        u.lang = 'en-US';
-        window.speechSynthesis.speak(u);
-    };
 
     // --- Recording & Scoring Logic ---
     function setupRecording() {
@@ -304,7 +348,6 @@ document.addEventListener('DOMContentLoaded', () => {
             elements.printModal.classList.add('hidden');
         });
 
-        // Close on outside click
         window.addEventListener('click', (e) => {
             if (e.target === elements.printModal) {
                 elements.printModal.classList.add('hidden');
@@ -312,22 +355,15 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         elements.startPrintBtn.addEventListener('click', () => {
-            // Determine selected layout
             let selectedLayout = 'text-only';
             elements.printOptions.forEach(opt => {
                 if (opt.checked) selectedLayout = opt.value;
             });
 
-            // Set body class
-            document.body.className = ''; // reset
+            document.body.className = '';
             document.body.classList.add(`print-${selectedLayout}`);
 
-            // Print
             window.print();
-
-            // Clean up class after print dialog closes (timout hack usually needed to not clear before print dialog renders)
-            // But usually keeping it is fine until page reload, or we can just remove it after a delay.
-            // A better way is using `onafterprint`
         });
 
         window.addEventListener('afterprint', () => {
