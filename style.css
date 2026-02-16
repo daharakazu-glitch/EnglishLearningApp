@@ -27,13 +27,34 @@ header {
     color: var(--white);
     padding: 1rem;
     text-align: center;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+#app-title {
+    margin: 0;
+    flex-grow: 1;
+    text-align: center;
+}
+
+.icon-btn {
+    background: none;
+    border: none;
+    color: var(--white);
+    font-size: 1.5rem;
+    cursor: pointer;
+}
+
+.icon-btn:hover {
+    color: var(--accent-color);
 }
 
 nav {
     display: flex;
     justify-content: center;
     background-color: var(--white);
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     position: sticky;
     top: 0;
     z-index: 100;
@@ -72,8 +93,13 @@ main {
 }
 
 @keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
 }
 
 /* Text Tab Styles */
@@ -81,7 +107,7 @@ main {
     background-color: var(--white);
     padding: 1rem;
     border-radius: var(--border-radius);
-    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
     display: flex;
     align-items: center;
     gap: 1rem;
@@ -101,23 +127,52 @@ main {
     justify-content: center;
 }
 
-#audio-progress {
-    flex-grow: 1;
+#audio-status {
+    margin-left: 1rem;
+    font-style: italic;
+    color: #666;
 }
 
 .text-content {
     background-color: var(--white);
     padding: 2rem;
     border-radius: var(--border-radius);
-    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-    font-size: 1.3rem; /* "Viewable size" */
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+    font-size: 1.3rem;
+    /* "Viewable size" */
     text-align: justify;
-    white-space: pre-wrap; /* Preserve paragraphs */
+    white-space: pre-wrap;
+    /* Preserve paragraphs */
+    margin-bottom: 1rem;
+}
+
+#translation-container {
+    background-color: #f0f7fb;
+    padding: 1.5rem;
+    border-radius: var(--border-radius);
+    margin-bottom: 1rem;
+    white-space: pre-wrap;
+    border-left: 4px solid var(--accent-color);
+}
+
+#translation-container.hidden {
+    display: none;
+}
+
+#toggle-translation-btn {
+    display: block;
+    margin: 0 auto;
+    padding: 0.5rem 1rem;
+    background-color: #eee;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
 }
 
 /* Highlighted words */
 .vocab-highlight {
-    background-color: rgba(241, 196, 15, 0.3); /* Subtle yellow */
+    background-color: rgba(241, 196, 15, 0.3);
+    /* Subtle yellow */
     border-radius: 3px;
     padding: 0 2px;
     cursor: pointer;
@@ -139,7 +194,7 @@ main {
     background-color: var(--white);
     padding: 1rem;
     border-radius: var(--border-radius);
-    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -149,7 +204,7 @@ main {
 
 .vocab-item:hover {
     transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 .vocab-word {
@@ -161,6 +216,14 @@ main {
     color: #666;
 }
 
+.vocab-check-line {
+    display: none;
+    /* Only for print test mode */
+    border-bottom: 1px solid #333;
+    width: 200px;
+    height: 1.5rem;
+}
+
 /* Modal Styles */
 .modal {
     position: fixed;
@@ -168,7 +231,7 @@ main {
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(0,0,0,0.5);
+    background-color: rgba(0, 0, 0, 0.5);
     display: flex;
     justify-content: center;
     align-items: center;
@@ -274,11 +337,13 @@ main {
     background-color: #7f8c8d;
 }
 
-#record-btn:hover, #stop-btn:not(:disabled):hover {
+#record-btn:hover,
+#stop-btn:not(:disabled):hover {
     filter: brightness(1.1);
 }
 
-#record-btn:disabled, #stop-btn:disabled {
+#record-btn:disabled,
+#stop-btn:disabled {
     opacity: 0.5;
     cursor: not-allowed;
 }
@@ -288,9 +353,17 @@ main {
 }
 
 @keyframes pulse {
-    0% { transform: scale(1); }
-    50% { transform: scale(1.05); }
-    100% { transform: scale(1); }
+    0% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.05);
+    }
+
+    100% {
+        transform: scale(1);
+    }
 }
 
 #score-display {
@@ -305,19 +378,173 @@ main {
     margin-top: 1rem;
 }
 
+/* Print Modal & Options */
+.print-options {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin: 1.5rem 0;
+}
+
+.print-options label {
+    font-size: 1.1rem;
+    cursor: pointer;
+    padding: 0.5rem;
+    border-radius: 4px;
+}
+
+.print-options label:hover {
+    background-color: #f0f0f0;
+}
+
+.primary-btn {
+    background-color: var(--accent-color);
+    color: var(--white);
+    border: none;
+    padding: 0.8rem 1.5rem;
+    border-radius: 4px;
+    font-size: 1rem;
+    cursor: pointer;
+    width: 100%;
+}
+
+.primary-btn:hover {
+    background-color: #2980b9;
+}
+
 /* Responsive */
 @media (max-width: 600px) {
     .tab-btn {
         padding: 1rem;
         font-size: 1rem;
     }
-    
+
     .text-content {
         padding: 1.5rem;
         font-size: 1.1rem;
     }
-    
+
     #modal-word {
         font-size: 2rem;
+    }
+}
+
+/* PRINT STYLES */
+@media print {
+
+    /* Hide non-printable elements */
+    header,
+    nav,
+    .audio-player-container,
+    #toggle-translation-btn,
+    .modal,
+    #print-btn {
+        display: none !important;
+    }
+
+    body {
+        font-family: "Times New Roman", Times, serif;
+        background-color: white;
+        color: black;
+    }
+
+    main {
+        max-width: 100%;
+        margin: 0;
+        padding: 0;
+    }
+
+    .tab-content {
+        display: block !important;
+        /* Show all content generally, filter by specific layout classes */
+        animation: none;
+    }
+
+    .text-content {
+        box-shadow: none;
+        padding: 0;
+        margin-bottom: 2rem;
+    }
+
+    .vocab-item {
+        box-shadow: none;
+        border-bottom: 1px solid #ccc;
+        break-inside: avoid;
+    }
+
+    /* 1. English Text Only */
+    body.print-text-only #vocab-tab,
+    body.print-text-only #translation-container,
+    body.print-text-only .vocab-highlight {
+        display: none;
+    }
+
+    /* Note: Highlights are spans. To "remove" highlight style but keep text: */
+    body.print-text-only .vocab-highlight {
+        background-color: transparent !important;
+        border-bottom: none !important;
+        display: inline;
+        /* Reset display:none from group above if needed, but actually we want the text to remain */
+    }
+
+    /* Fix: Logic above hides the span entirely, which hides text. We want to just unstyle it. */
+    body.print-text-only #vocab-tab,
+    body.print-text-only #translation-container {
+        display: none !important;
+    }
+
+    body.print-text-only .vocab-highlight {
+        background-color: transparent !important;
+        border-bottom: none !important;
+    }
+
+
+    /* 2. English Text + Highlights */
+    body.print-text-highlight #vocab-tab,
+    body.print-text-highlight #translation-container {
+        display: none !important;
+    }
+
+    body.print-text-highlight .vocab-highlight {
+        background-color: #eee !important;
+        /* Light gray for print */
+        border-bottom: 1px dashed #333;
+        -webkit-print-color-adjust: exact;
+    }
+
+    /* 3. English Text + Translation */
+    body.print-text-trans #vocab-tab {
+        display: none !important;
+    }
+
+    body.print-text-trans #translation-container {
+        display: block !important;
+        background-color: transparent;
+        border: none;
+    }
+
+    /* 4. Vocabulary List */
+    body.print-vocab-list #text-tab {
+        display: none !important;
+    }
+
+    /* 5. Vocabulary Test */
+    body.print-vocab-test #text-tab {
+        display: none !important;
+    }
+
+    body.print-vocab-test .vocab-def {
+        display: none;
+    }
+
+    body.print-vocab-test .vocab-check-line {
+        display: block;
+    }
+
+    /* 6. Comprehensive */
+    body.print-comprehensive #translation-container {
+        display: block !important;
+        background-color: transparent;
+        border: none;
     }
 }

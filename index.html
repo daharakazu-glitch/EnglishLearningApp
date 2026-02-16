@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="ja">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,10 +9,12 @@
     <!-- Font Awesome for icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
+
 <body>
 
     <header>
         <h1 id="app-title">English Learning App</h1>
+        <button id="print-btn" class="icon-btn" title="PDF/Print"><i class="fas fa-print"></i></button>
     </header>
 
     <nav>
@@ -23,17 +26,18 @@
         <!-- English Text Tab -->
         <section id="text-tab" class="tab-content active">
             <div class="audio-player-container">
-                 <button id="play-pause-btn" class="audio-control"><i class="fas fa-play"></i></button>
-                 <input type="range" id="audio-progress" value="0" min="0" max="100">
-                 <span id="audio-time">0:00 / 0:00</span>
+                <button id="play-pause-btn" class="audio-control"><i class="fas fa-play"></i></button>
+                <button id="stop-audio-btn" class="audio-control"><i class="fas fa-stop"></i></button>
+                <!-- Progress bar removed for TTS as standard API doesn't easily support seeking/duration in all browsers -->
+                <span id="audio-status">Click Play to Listen</span>
             </div>
             <div id="text-container" class="text-content">
                 <!-- Text will be injected here -->
             </div>
             <div id="translation-container" class="hidden">
-                 <!-- Translation will be injected here -->
-                 <button id="toggle-translation-btn">Show Translation</button>
+                <!-- Translation will be injected here -->
             </div>
+            <button id="toggle-translation-btn">Show/Hide Translation</button>
         </section>
 
         <!-- Vocabulary Tab -->
@@ -50,7 +54,7 @@
             <span class="close-modal">&times;</span>
             <h2 id="modal-word"></h2>
             <p id="modal-definition"></p>
-            
+
             <div id="modal-examples">
                 <!-- Examples injected here -->
             </div>
@@ -69,6 +73,26 @@
         </div>
     </div>
 
+    <!-- Print Modal -->
+    <div id="print-modal" class="modal hidden">
+        <div class="modal-content print-modal-content">
+            <span class="close-modal close-print">&times;</span>
+            <h2>Select Print/PDF Layout</h2>
+            <div class="print-options">
+                <label><input type="radio" name="print-layout" value="text-only" checked> 1. English Text Only</label>
+                <label><input type="radio" name="print-layout" value="text-highlight"> 2. English Text +
+                    Highlights</label>
+                <label><input type="radio" name="print-layout" value="text-trans"> 3. English Text + Translation</label>
+                <label><input type="radio" name="print-layout" value="vocab-list"> 4. Vocabulary List</label>
+                <label><input type="radio" name="print-layout" value="vocab-test"> 5. Vocabulary Test (No
+                    Definitions)</label>
+                <label><input type="radio" name="print-layout" value="comprehensive"> 6. Comprehensive Set (All)</label>
+            </div>
+            <button id="start-print-btn" class="primary-btn">Print / Save as PDF</button>
+        </div>
+    </div>
+
     <script src="script.js"></script>
 </body>
+
 </html>

@@ -3,23 +3,43 @@ document.addEventListener('DOMContentLoaded', () => {
     let appData = null;
     let mediaRecorder;
     let audioChunks = [];
+    let utterance = null;
+    let isPlaying = false;
 
     const elements = {
         title: document.getElementById('app-title'),
         textContainer: document.getElementById('text-container'),
+        translationContainer: document.getElementById('translation-container'),
+        toggleTranslationBtn: document.getElementById('toggle-translation-btn'),
         vocabList: document.getElementById('vocab-list'),
         tabs: document.querySelectorAll('.tab-btn'),
         tabContents: document.querySelectorAll('.tab-content'),
+
+        // Modal Vocab
         modal: document.getElementById('vocab-modal'),
         closeModal: document.querySelector('.close-modal'),
         modalWord: document.getElementById('modal-word'),
         modalDef: document.getElementById('modal-definition'),
         modalExamples: document.getElementById('modal-examples'),
+
+        // Recording
         recordBtn: document.getElementById('record-btn'),
         stopBtn: document.getElementById('stop-btn'),
         audioPlayback: document.getElementById('user-recording'),
         scoreDisplay: document.getElementById('score-display'),
-        scoreValue: document.getElementById('score-value')
+        scoreValue: document.getElementById('score-value'),
+
+        // Audio Player (TTS)
+        playPauseBtn: document.getElementById('play-pause-btn'),
+        stopAudioBtn: document.getElementById('stop-audio-btn'),
+        audioStatus: document.getElementById('audio-status'),
+
+        // Print
+        printBtn: document.getElementById('print-btn'),
+        printModal: document.getElementById('print-modal'),
+        closePrintModal: document.querySelector('.close-print'),
+        startPrintBtn: document.getElementById('start-print-btn'),
+        printOptions: document.querySelectorAll('input[name="print-layout"]')
     };
 
     // --- Initialization ---
@@ -32,11 +52,13 @@ document.addEventListener('DOMContentLoaded', () => {
         .catch(err => console.error('Error loading data:', err));
 
     function initApp() {
-        // Set Title
-        // elements.title.textContent = appData.title || "English Learning App"; // Optional override
-
         // Render English Text with Highlighting
         renderText();
+
+        // Render Translation
+        if (appData.text.ja) {
+            elements.translationContainer.innerText = appData.text.ja;
+        }
 
         // Render Vocabulary List
         renderVocabList();
@@ -45,41 +67,93 @@ document.addEventListener('DOMContentLoaded', () => {
         setupTabs();
         setupModal();
         setupRecording();
+        setupTTS();
+        setupPrint();
+        setupTranslationToggle();
     }
 
     // --- Text Tab Logic ---
     function renderText() {
         let text = appData.text.en;
-        
-        // Naive highlighting: iterate through vocab list and replace occurrences
-        // Sort by length (descending) to avoid partial matches on shorter words being replaced inside longer ones
         const sortedVocab = [...appData.vocabulary].sort((a, b) => b.word.length - a.word.length);
 
-        // We use a temporary placeholder strategy to avoid re-replacing inside HTML tags
-        // But for simplicity, we'll split by spaces and match tokens if possible, 
-        // OR use a careful regex replace.
-        // Given complexity, let's try a direct regex with word boundaries for each word.
-        
         sortedVocab.forEach(item => {
-            const regex = new RegExp(`\\b${item.word}\\b`, 'gi'); // Case insensitive, whole word
-            // We wrap it in a span with a data-id to link to the vocab details
+            const regex = new RegExp(`\\b${item.word}\\b`, 'gi');
             text = text.replace(regex, (match) => {
                 return `<span class="vocab-highlight" data-id="${item.id}">${match}</span>`;
             });
         });
 
-        // Convert newlines to paragraphs
-        // The simple pre-wrap in CSS handles newlines, but we can also wrap in <p> if needed.
-        // For now, raw injection with pre-wrap is fine.
         elements.textContainer.innerHTML = text;
 
-        // Add click listeners to highlights
         document.querySelectorAll('.vocab-highlight').forEach(span => {
             span.addEventListener('click', (e) => {
                 const id = parseInt(e.target.dataset.id);
                 openVocabModal(id);
             });
         });
+    }
+
+    function setupTranslationToggle() {
+        elements.toggleTranslationBtn.addEventListener('click', () => {
+            elements.translationContainer.classList.toggle('hidden');
+        });
+    }
+
+    // --- TTS Logic (Web Speech API) ---
+    function setupTTS() {
+        if (!('speechSynthesis' in window)) {
+            elements.audioStatus.textContent = "TTS not supported.";
+            elements.playPauseBtn.disabled = true;
+            return;
+        }
+
+        elements.playPauseBtn.addEventListener('click', () => {
+            if (isPlaying) {
+                window.speechSynthesis.pause();
+                isPlaying = false;
+                elements.playPauseBtn.innerHTML = '<i class="fas fa-play"></i>';
+                elements.audioStatus.textContent = "Paused";
+            } else {
+                if (window.speechSynthesis.paused) {
+                    window.speechSynthesis.resume();
+                } else {
+                    playText(appData.text.en);
+                }
+                isPlaying = true;
+                elements.playPauseBtn.innerHTML = '<i class="fas fa-pause"></i>';
+                elements.audioStatus.textContent = "Playing...";
+            }
+        });
+
+        elements.stopAudioBtn.addEventListener('click', () => {
+            window.speechSynthesis.cancel();
+            isPlaying = false;
+            elements.playPauseBtn.innerHTML = '<i class="fas fa-play"></i>';
+            elements.audioStatus.textContent = "Stopped";
+        });
+    }
+
+    function playText(text) {
+        window.speechSynthesis.cancel(); // Stop any previous
+        utterance = new SpeechSynthesisUtterance(text);
+        utterance.lang = 'en-US'; // Default to US English
+        utterance.rate = 1.0;
+
+        utterance.onend = () => {
+            isPlaying = false;
+            elements.playPauseBtn.innerHTML = '<i class="fas fa-play"></i>';
+            elements.audioStatus.textContent = "Finished";
+        };
+
+        utterance.onerror = (e) => {
+            console.error('SpeechSynthesis error:', e);
+            isPlaying = false;
+            elements.playPauseBtn.innerHTML = '<i class="fas fa-play"></i>';
+            elements.audioStatus.textContent = "Error";
+        };
+
+        window.speechSynthesis.speak(utterance);
     }
 
     // --- Vocabulary Tab Logic ---
@@ -91,6 +165,7 @@ document.addEventListener('DOMContentLoaded', () => {
             el.innerHTML = `
                 <div class="vocab-word">${item.word}</div>
                 <div class="vocab-def">${item.definition}</div>
+                <div class="vocab-check-line"></div>
             `;
             el.addEventListener('click', () => openVocabModal(item.id));
             elements.vocabList.appendChild(el);
@@ -101,11 +176,8 @@ document.addEventListener('DOMContentLoaded', () => {
     function setupTabs() {
         elements.tabs.forEach(tab => {
             tab.addEventListener('click', () => {
-                // Deactivate all
                 elements.tabs.forEach(t => t.classList.remove('active'));
                 elements.tabContents.forEach(c => c.classList.remove('active'));
-
-                // Activate clicked
                 tab.classList.add('active');
                 const targetId = tab.dataset.tab;
                 document.getElementById(targetId).classList.add('active');
@@ -120,15 +192,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
         elements.modalWord.textContent = item.word;
         elements.modalDef.textContent = item.definition;
-        
-        // Render Examples
+
         elements.modalExamples.innerHTML = '';
         if (item.examples && item.examples.length > 0) {
             item.examples.forEach(ex => {
                 const exBlock = document.createElement('div');
                 exBlock.className = 'example-block';
                 exBlock.innerHTML = `
-                    <div class="example-en">${ex.en}</div>
+                    <div class="example-en">${ex.en} <i class="fas fa-volume-up" style="cursor:pointer; color:#3498db; margin-left:5px;" onclick="speak('${ex.en.replace(/'/g, "\\'")}')"></i></div>
                     <div class="example-ja">${ex.ja}</div>
                 `;
                 elements.modalExamples.appendChild(exBlock);
@@ -137,9 +208,7 @@ document.addEventListener('DOMContentLoaded', () => {
             elements.modalExamples.innerHTML = '<p class="text-muted">No examples available.</p>';
         }
 
-        // Reset Recording state
         resetRecordingUI();
-
         elements.modal.classList.remove('hidden');
     }
 
@@ -147,8 +216,6 @@ document.addEventListener('DOMContentLoaded', () => {
         elements.closeModal.addEventListener('click', () => {
             elements.modal.classList.add('hidden');
         });
-
-        // Close on outside click
         window.addEventListener('click', (e) => {
             if (e.target === elements.modal) {
                 elements.modal.classList.add('hidden');
@@ -156,10 +223,18 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // Global helper for example speech
+    window.speak = function (text) {
+        window.speechSynthesis.cancel();
+        const u = new SpeechSynthesisUtterance(text);
+        u.lang = 'en-US';
+        window.speechSynthesis.speak(u);
+    };
+
     // --- Recording & Scoring Logic ---
     function setupRecording() {
         if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-            console.warn("getUserMedia not supported on your browser!");
+            console.warn("getUserMedia not supported");
             elements.recordBtn.disabled = true;
             elements.recordBtn.textContent = "Mic Not Supported";
             return;
@@ -181,17 +256,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
 
                 mediaRecorder.addEventListener("stop", () => {
-                    const audioBlob = new Blob(audioChunks, { type: 'audio/mp3' }); // or webm
+                    const audioBlob = new Blob(audioChunks, { type: 'audio/mp3' });
                     const audioUrl = URL.createObjectURL(audioBlob);
                     elements.audioPlayback.src = audioUrl;
-                    
-                    // Generate random score
+
                     const score = Math.floor(Math.random() * (100 - 80 + 1)) + 80;
                     elements.scoreValue.textContent = score;
                     elements.scoreDisplay.classList.remove('hidden');
                 });
 
-                // UI Updates
                 elements.recordBtn.disabled = true;
                 elements.recordBtn.classList.add('recording');
                 elements.stopBtn.disabled = false;
@@ -207,10 +280,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function stopRecording() {
         if (mediaRecorder && mediaRecorder.state !== 'inactive') {
             mediaRecorder.stop();
-            // Stop all tracks to release mic
             mediaRecorder.stream.getTracks().forEach(track => track.stop());
-            
-            // UI Updates
             elements.recordBtn.disabled = false;
             elements.recordBtn.classList.remove('recording');
             elements.stopBtn.disabled = true;
@@ -222,5 +292,47 @@ document.addEventListener('DOMContentLoaded', () => {
         elements.audioPlayback.src = "";
         elements.recordBtn.disabled = false;
         elements.stopBtn.disabled = true;
+    }
+
+    // --- Printing Logic ---
+    function setupPrint() {
+        elements.printBtn.addEventListener('click', () => {
+            elements.printModal.classList.remove('hidden');
+        });
+
+        elements.closePrintModal.addEventListener('click', () => {
+            elements.printModal.classList.add('hidden');
+        });
+
+        // Close on outside click
+        window.addEventListener('click', (e) => {
+            if (e.target === elements.printModal) {
+                elements.printModal.classList.add('hidden');
+            }
+        });
+
+        elements.startPrintBtn.addEventListener('click', () => {
+            // Determine selected layout
+            let selectedLayout = 'text-only';
+            elements.printOptions.forEach(opt => {
+                if (opt.checked) selectedLayout = opt.value;
+            });
+
+            // Set body class
+            document.body.className = ''; // reset
+            document.body.classList.add(`print-${selectedLayout}`);
+
+            // Print
+            window.print();
+
+            // Clean up class after print dialog closes (timout hack usually needed to not clear before print dialog renders)
+            // But usually keeping it is fine until page reload, or we can just remove it after a delay.
+            // A better way is using `onafterprint`
+        });
+
+        window.addEventListener('afterprint', () => {
+            document.body.className = '';
+            elements.printModal.classList.add('hidden');
+        });
     }
 });
