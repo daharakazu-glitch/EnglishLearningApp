@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>English Learning App</title>
+    <link rel="stylesheet" href="style.css">
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
+    <header>
+        <h1 id="app-title">English Learning App</h1>
+    </header>
+
+    <nav>
+        <button class="tab-btn active" data-tab="text-tab">English Text</button>
+        <button class="tab-btn" data-tab="vocab-tab">Vocabulary</button>
+    </nav>
+
+    <main>
+        <!-- English Text Tab -->
+        <section id="text-tab" class="tab-content active">
+            <div class="audio-player-container">
+                 <button id="play-pause-btn" class="audio-control"><i class="fas fa-play"></i></button>
+                 <input type="range" id="audio-progress" value="0" min="0" max="100">
+                 <span id="audio-time">0:00 / 0:00</span>
+            </div>
+            <div id="text-container" class="text-content">
+                <!-- Text will be injected here -->
+            </div>
+            <div id="translation-container" class="hidden">
+                 <!-- Translation will be injected here -->
+                 <button id="toggle-translation-btn">Show Translation</button>
+            </div>
+        </section>
+
+        <!-- Vocabulary Tab -->
+        <section id="vocab-tab" class="tab-content">
+            <div id="vocab-list" class="vocab-list">
+                <!-- Vocabulary items will be injected here -->
+            </div>
+        </section>
+    </main>
+
+    <!-- Vocabulary Detail Modal -->
+    <div id="vocab-modal" class="modal hidden">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <h2 id="modal-word"></h2>
+            <p id="modal-definition"></p>
+            
+            <div id="modal-examples">
+                <!-- Examples injected here -->
+            </div>
+
+            <div class="recording-section">
+                <h3>Practice Pronunciation</h3>
+                <div class="record-controls">
+                    <button id="record-btn" class="record-control"><i class="fas fa-microphone"></i> Record</button>
+                    <button id="stop-btn" class="record-control" disabled><i class="fas fa-stop"></i> Stop</button>
+                </div>
+                <audio id="user-recording" controls></audio>
+                <div id="score-display" class="hidden">
+                    Score: <span id="score-value">--</span>/100
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

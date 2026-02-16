@@ -1,0 +1,323 @@
+:root {
+    --primary-color: #2c3e50;
+    --accent-color: #3498db;
+    --highlight-color: #f1c40f;
+    --text-color: #333;
+    --bg-color: #f9f9f9;
+    --white: #ffffff;
+    --border-radius: 8px;
+    --font-main: "Times New Roman", Times, serif;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    font-family: var(--font-main);
+    margin: 0;
+    padding: 0;
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    line-height: 1.6;
+}
+
+header {
+    background-color: var(--primary-color);
+    color: var(--white);
+    padding: 1rem;
+    text-align: center;
+}
+
+nav {
+    display: flex;
+    justify-content: center;
+    background-color: var(--white);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+.tab-btn {
+    background: none;
+    border: none;
+    padding: 1rem 2rem;
+    font-family: var(--font-main);
+    font-size: 1.2rem;
+    cursor: pointer;
+    border-bottom: 3px solid transparent;
+    transition: all 0.3s;
+}
+
+.tab-btn.active {
+    border-bottom-color: var(--accent-color);
+    color: var(--accent-color);
+    font-weight: bold;
+}
+
+main {
+    max-width: 800px;
+    margin: 2rem auto;
+    padding: 0 1rem;
+}
+
+.tab-content {
+    display: none;
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+.tab-content.active {
+    display: block;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+/* Text Tab Styles */
+.audio-player-container {
+    background-color: var(--white);
+    padding: 1rem;
+    border-radius: var(--border-radius);
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+.audio-control {
+    background-color: var(--accent-color);
+    color: var(--white);
+    border: none;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#audio-progress {
+    flex-grow: 1;
+}
+
+.text-content {
+    background-color: var(--white);
+    padding: 2rem;
+    border-radius: var(--border-radius);
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    font-size: 1.3rem; /* "Viewable size" */
+    text-align: justify;
+    white-space: pre-wrap; /* Preserve paragraphs */
+}
+
+/* Highlighted words */
+.vocab-highlight {
+    background-color: rgba(241, 196, 15, 0.3); /* Subtle yellow */
+    border-radius: 3px;
+    padding: 0 2px;
+    cursor: pointer;
+    border-bottom: 1px dashed var(--text-color);
+    transition: background-color 0.2s;
+}
+
+.vocab-highlight:hover {
+    background-color: var(--highlight-color);
+}
+
+/* Vocabulary Tab Styles */
+.vocab-list {
+    display: grid;
+    gap: 1rem;
+}
+
+.vocab-item {
+    background-color: var(--white);
+    padding: 1rem;
+    border-radius: var(--border-radius);
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+
+.vocab-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.vocab-word {
+    font-size: 1.4rem;
+    font-weight: bold;
+}
+
+.vocab-def {
+    color: #666;
+}
+
+/* Modal Styles */
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.modal.hidden {
+    display: none;
+}
+
+.modal-content {
+    background-color: var(--white);
+    padding: 2rem;
+    border-radius: var(--border-radius);
+    width: 90%;
+    max-width: 600px;
+    position: relative;
+    max-height: 90vh;
+    overflow-y: auto;
+}
+
+.close-modal {
+    position: absolute;
+    top: 1rem;
+    right: 1.5rem;
+    font-size: 2rem;
+    cursor: pointer;
+    color: #aaa;
+}
+
+.close-modal:hover {
+    color: #333;
+}
+
+#modal-word {
+    font-size: 2.5rem;
+    margin-bottom: 0.5rem;
+    color: var(--accent-color);
+}
+
+#modal-definition {
+    font-size: 1.2rem;
+    margin-bottom: 2rem;
+    color: #555;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 1rem;
+}
+
+.example-block {
+    margin-bottom: 1.5rem;
+    background-color: #f0f7fb;
+    padding: 1rem;
+    border-radius: var(--border-radius);
+    border-left: 4px solid var(--accent-color);
+}
+
+.example-en {
+    font-size: 1.1rem;
+    margin-bottom: 0.5rem;
+}
+
+.example-ja {
+    color: #666;
+    font-size: 0.95rem;
+}
+
+/* Recording Section */
+.recording-section {
+    margin-top: 2rem;
+    padding-top: 1rem;
+    border-top: 1px solid #eee;
+    text-align: center;
+}
+
+.record-controls {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.record-control {
+    padding: 0.8rem 1.5rem;
+    border: none;
+    border-radius: 30px;
+    font-size: 1rem;
+    cursor: pointer;
+    font-family: var(--font-main);
+    transition: filter 0.2s;
+}
+
+#record-btn {
+    background-color: #e74c3c;
+    color: var(--white);
+}
+
+#stop-btn {
+    background-color: #95a5a6;
+    color: var(--white);
+}
+
+#stop-btn:not(:disabled) {
+    background-color: #7f8c8d;
+}
+
+#record-btn:hover, #stop-btn:not(:disabled):hover {
+    filter: brightness(1.1);
+}
+
+#record-btn:disabled, #stop-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.recording {
+    animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+}
+
+#score-display {
+    margin-top: 1rem;
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: var(--accent-color);
+}
+
+#user-recording {
+    width: 100%;
+    margin-top: 1rem;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+    .tab-btn {
+        padding: 1rem;
+        font-size: 1rem;
+    }
+    
+    .text-content {
+        padding: 1.5rem;
+        font-size: 1.1rem;
+    }
+    
+    #modal-word {
+        font-size: 2rem;
+    }
+}
