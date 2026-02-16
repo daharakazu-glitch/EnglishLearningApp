@@ -4,22 +4,22 @@
 // ======================================================================
 
 const APP_META = {
-    title: "速読英単語　必修編　マスターアプリ",
-    subTitle: "01 お茶の木の種類 [文化]",
+  title: "速読英単語　必修編　マスターアプリ",
+  subTitle: "01 お茶の木の種類 [文化]",
 };
 
 // State
 let state = {
-    viewMode: 'app', // 'app' or 'print'
-    tab: 'text',     // 'text' or 'vocab'
-    selectedIds: new Set(),
-    voice: null,
-    printSettings: null,
-    isPlaying: false,
-    textData: null,
-    vocabList: [],
-    showMenu: false,
-    expandedVocabIds: new Set()
+  viewMode: 'app', // 'app' or 'print'
+  tab: 'text',     // 'text' or 'vocab'
+  selectedIds: new Set(),
+  voice: null,
+  printSettings: null,
+  isPlaying: false,
+  textData: null,
+  vocabList: [],
+  showMenu: false,
+  expandedVocabIds: new Set()
 };
 
 // Data (will be loaded from JSON)
@@ -32,57 +32,57 @@ let HIGHLIGHTS = [];
 // ======================================================================
 
 document.addEventListener('DOMContentLoaded', async () => {
-    try {
-        const response = await fetch('data.json'); // Use local data.json
-        const data = await response.json();
+  try {
+    const response = await fetch('data.json'); // Use local data.json
+    const data = await response.json();
 
-        // Map data.json to App Structure
-        STORY = {
-            en: data.text.en,
-            jp: data.text.ja || ""
-        };
+    // Map data.json to App Structure
+    STORY = {
+      en: data.text.en,
+      jp: data.text.ja || ""
+    };
 
-        VOCAB_LIST = data.vocabulary.map(v => ({
-            id: v.id,
-            word: v.word,
-            meaning: v.definition,
-            sentence: v.examples?.[0]?.en || null,
-            translation: v.examples?.[0]?.ja || null,
-            rank: "★★★" // Mock rank or derived if available
-        }));
+    VOCAB_LIST = data.vocabulary.map(v => ({
+      id: v.id,
+      word: v.word,
+      meaning: v.definition,
+      sentence: v.examples?.[0]?.en || null,
+      translation: v.examples?.[0]?.ja || null,
+      rank: "★★★" // Mock rank or derived if available
+    }));
 
-        HIGHLIGHTS = VOCAB_LIST.map(v => v.word);
+    HIGHLIGHTS = VOCAB_LIST.map(v => v.word);
 
-        // Initial selection: All
-        state.selectedIds = new Set(VOCAB_LIST.map(v => v.id));
+    // Initial selection: All
+    state.selectedIds = new Set(VOCAB_LIST.map(v => v.id));
 
-        // Init Voice
-        initVoice();
+    // Init Voice
+    initVoice();
 
-        // Initial Render
-        render();
-        lucide.createIcons();
+    // Initial Render
+    render();
+    lucide.createIcons();
 
-    } catch (e) {
-        console.error("Failed to load data", e);
-        document.getElementById('app-root').innerHTML = `<div class="p-4 text-red-500">Error loading data: ${e.message}</div>`;
-    }
+  } catch (e) {
+    console.error("Failed to load data", e);
+    document.getElementById('app-root').innerHTML = `<div class="p-4 text-red-500">Error loading data: ${e.message}</div>`;
+  }
 });
 
 function initVoice() {
-    const setVoice = () => {
-        const voices = window.speechSynthesis.getVoices();
-        // Try to find a good English voice
-        const en = voices.find(v => v.name.includes('Google US English')) ||
-            voices.find(v => v.lang.startsWith('en-US')) ||
-            voices.find(v => v.lang.startsWith('en'));
-        if (en) state.voice = en;
-        renderHeader(); // Re-render header to update voice select
-    };
-    setVoice();
-    if (window.speechSynthesis.onvoiceschanged !== undefined) {
-        window.speechSynthesis.onvoiceschanged = setVoice;
-    }
+  const setVoice = () => {
+    const voices = window.speechSynthesis.getVoices();
+    // Try to find a good English voice
+    const en = voices.find(v => v.name.includes('Google US English')) ||
+      voices.find(v => v.lang.startsWith('en-US')) ||
+      voices.find(v => v.lang.startsWith('en'));
+    if (en) state.voice = en;
+    renderHeader(); // Re-render header to update voice select
+  };
+  setVoice();
+  if (window.speechSynthesis.onvoiceschanged !== undefined) {
+    window.speechSynthesis.onvoiceschanged = setVoice;
+  }
 }
 
 // ======================================================================
@@ -90,79 +90,79 @@ function initVoice() {
 // ======================================================================
 
 function setState(updates) {
-    state = { ...state, ...updates };
-    render();
+  state = { ...state, ...updates };
+  render();
 }
 
 function setTab(tab) {
-    setState({ tab });
+  setState({ tab });
 }
 
 function toggleSelect(id) {
-    const newSet = new Set(state.selectedIds);
-    if (newSet.has(id)) newSet.delete(id); else newSet.add(id);
-    setState({ selectedIds: newSet });
+  const newSet = new Set(state.selectedIds);
+  if (newSet.has(id)) newSet.delete(id); else newSet.add(id);
+  setState({ selectedIds: newSet });
 }
 
 function toggleAll() {
-    if (state.selectedIds.size === VOCAB_LIST.length) {
-        setState({ selectedIds: new Set() });
-    } else {
-        setState({ selectedIds: new Set(VOCAB_LIST.map(v => v.id)) });
-    }
+  if (state.selectedIds.size === VOCAB_LIST.length) {
+    setState({ selectedIds: new Set() });
+  } else {
+    setState({ selectedIds: new Set(VOCAB_LIST.map(v => v.id)) });
+  }
 }
 
 function toggleMenu() {
-    setState({ showMenu: !state.showMenu });
+  setState({ showMenu: !state.showMenu });
 }
 
 function toggleVocabExpand(id) {
-    const newSet = new Set(state.expandedVocabIds);
-    if (newSet.has(id)) newSet.delete(id); else newSet.add(id);
-    setState({ expandedVocabIds: newSet });
+  const newSet = new Set(state.expandedVocabIds);
+  if (newSet.has(id)) newSet.delete(id); else newSet.add(id);
+  setState({ expandedVocabIds: newSet });
 }
 
 function onPrintRequest(format) {
-    const items = VOCAB_LIST.filter(v => state.selectedIds.has(v.id));
-    if (items.length === 0) {
-        alert("単語を選択してください");
-        return;
-    }
-    setState({
-        viewMode: 'print',
-        printSettings: { format, items },
-        showMenu: false
-    });
+  const items = VOCAB_LIST.filter(v => state.selectedIds.has(v.id));
+  if (items.length === 0) {
+    alert("単語を選択してください");
+    return;
+  }
+  setState({
+    viewMode: 'print',
+    printSettings: { format, items },
+    showMenu: false
+  });
 }
 
 function backToApp() {
-    setState({ viewMode: 'app', printSettings: null });
+  setState({ viewMode: 'app', printSettings: null });
 }
 
 function setVoice(voiceName) {
-    const v = window.speechSynthesis.getVoices().find(v => v.name === voiceName);
-    setState({ voice: v });
+  const v = window.speechSynthesis.getVoices().find(v => v.name === voiceName);
+  setState({ voice: v });
 }
 
 function playStory() {
-    if (state.isPlaying) {
-        window.speechSynthesis.cancel();
-        setState({ isPlaying: false });
-        return;
-    }
-    const ut = new SpeechSynthesisUtterance(STORY.en);
-    if (state.voice) ut.voice = state.voice;
-    ut.rate = 0.9;
-    ut.onend = () => setState({ isPlaying: false });
-    window.speechSynthesis.speak(ut);
-    setState({ isPlaying: true });
+  if (state.isPlaying) {
+    window.speechSynthesis.cancel();
+    setState({ isPlaying: false });
+    return;
+  }
+  const ut = new SpeechSynthesisUtterance(STORY.en);
+  if (state.voice) ut.voice = state.voice;
+  ut.rate = 0.9;
+  ut.onend = () => setState({ isPlaying: false });
+  window.speechSynthesis.speak(ut);
+  setState({ isPlaying: true });
 }
 
 function playWord(text) {
-    window.speechSynthesis.cancel();
-    const ut = new SpeechSynthesisUtterance(text);
-    if (state.voice) ut.voice = state.voice;
-    window.speechSynthesis.speak(ut);
+  window.speechSynthesis.cancel();
+  const ut = new SpeechSynthesisUtterance(text);
+  if (state.voice) ut.voice = state.voice;
+  window.speechSynthesis.speak(ut);
 }
 
 // ======================================================================
@@ -170,19 +170,19 @@ function playWord(text) {
 // ======================================================================
 
 function render() {
-    const root = document.getElementById('app-root');
+  const root = document.getElementById('app-root');
 
-    if (state.viewMode === 'print') {
-        root.innerHTML = renderPrintView();
-    } else {
-        root.innerHTML = renderAppView();
-    }
+  if (state.viewMode === 'print') {
+    root.innerHTML = renderPrintView();
+  } else {
+    root.innerHTML = renderAppView();
+  }
 
-    lucide.createIcons();
+  lucide.createIcons();
 }
 
 function renderAppView() {
-    return `
+  return `
     <div class="min-h-screen bg-slate-50 text-slate-900 font-serif pb-20">
         ${renderHeader()}
         ${renderTabNav()}
@@ -194,22 +194,22 @@ function renderAppView() {
 }
 
 function renderHeader() {
-    // Voices options
-    const voices = window.speechSynthesis.getVoices().filter(v => v.lang.startsWith('en'));
-    const options = voices.map(v =>
-        `<option value="${v.name}" ${state.voice?.name === v.name ? 'selected' : ''} class="text-black">${v.name}</option>`
-    ).join('');
+  // Voices options
+  const voices = window.speechSynthesis.getVoices().filter(v => v.lang.startsWith('en'));
+  const options = voices.map(v =>
+    `<option value="${v.name}" ${state.voice?.name === v.name ? 'selected' : ''} class="text-black">${v.name}</option>`
+  ).join('');
 
-    return `
+  return `
     <header class="bg-blue-900 text-white p-4 shadow sticky top-0 z-20">
         <div class="max-w-3xl mx-auto flex justify-between items-center">
           <div>
-            <h1 class="font-bold text-lg md:text-xl">${APP_META.title}</h1>
-            <p class="text-blue-200 text-xs mt-1">${APP_META.subTitle}</p>
+            <h1 class="font-bold text-2xl md:text-3xl">${APP_META.title}</h1>
+            <p class="text-blue-200 text-base mt-2">${APP_META.subTitle}</p>
           </div>
           <div class="bg-black/20 p-2 rounded flex items-center">
-            <i data-lucide="volume-2" class="text-blue-200 mr-2 w-4 h-4"></i>
-            <select class="bg-transparent text-white text-xs max-w-[150px]" onchange="setVoice(this.value)">
+            <i data-lucide="volume-2" class="text-blue-200 mr-2 w-5 h-5"></i>
+            <select class="bg-transparent text-white text-base max-w-[180px]" onchange="setVoice(this.value)">
                 ${options}
             </select>
           </div>
@@ -219,14 +219,14 @@ function renderHeader() {
 }
 
 function renderTabNav() {
-    return `
+  return `
     <div class="max-w-3xl mx-auto mt-4 px-4 sticky top-20 z-10">
         <div class="flex bg-white rounded shadow border border-slate-200 overflow-hidden">
-          <button onclick="setTab('text')" class="flex-1 py-3 font-bold flex justify-center items-center gap-2 ${state.tab === 'text' ? 'bg-blue-100 text-blue-900' : 'text-slate-500 hover:bg-slate-50'}">
-            <i data-lucide="file-text" class="w-4 h-4"></i> Text
+          <button onclick="setTab('text')" class="flex-1 py-4 font-bold flex justify-center items-center gap-2 text-xl ${state.tab === 'text' ? 'bg-blue-100 text-blue-900' : 'text-slate-500 hover:bg-slate-50'}">
+            <i data-lucide="file-text" class="w-6 h-6"></i> Text
           </button>
-          <button onclick="setTab('vocab')" class="flex-1 py-3 font-bold flex justify-center items-center gap-2 ${state.tab === 'vocab' ? 'bg-indigo-100 text-indigo-900' : 'text-slate-500 hover:bg-slate-50'}">
-            <i data-lucide="book-open" class="w-4 h-4"></i> Vocab
+          <button onclick="setTab('vocab')" class="flex-1 py-4 font-bold flex justify-center items-center gap-2 text-xl ${state.tab === 'vocab' ? 'bg-indigo-100 text-indigo-900' : 'text-slate-500 hover:bg-slate-50'}">
+            <i data-lucide="book-open" class="w-6 h-6"></i> Vocab
           </button>
         </div>
     </div>
@@ -234,62 +234,62 @@ function renderTabNav() {
 }
 
 function renderTextComponent() {
-    const words = STORY.en.split(/(\s+)/).map((word) => {
-        // Simple includes check for highlights
-        const isHighlight = HIGHLIGHTS.some(h => word.toLowerCase().includes(h.toLowerCase()) && word.trim().length > 1);
-        if (isHighlight) {
-            return `<span class="bg-yellow-200 text-blue-900 font-bold px-1 rounded">${word}</span>`;
-        }
-        return word;
-    }).join('');
+  const words = STORY.en.split(/(\s+)/).map((word) => {
+    // Simple includes check for highlights
+    const isHighlight = HIGHLIGHTS.some(h => word.toLowerCase().includes(h.toLowerCase()) && word.trim().length > 1);
+    if (isHighlight) {
+      return `<span class="bg-yellow-200 text-blue-900 font-bold px-1 rounded">${word}</span>`;
+    }
+    return word;
+  }).join('');
 
-    return `
+  return `
     <div class="space-y-6">
       <div class="bg-white p-6 rounded-lg shadow-md border-l-4 border-blue-800">
         <div class="flex justify-between items-center mb-4">
-          <h2 class="text-lg font-bold text-blue-900">ENGLISH STORY</h2>
-          <button onclick="playStory()" class="px-4 py-1.5 rounded-full text-sm font-bold shadow flex items-center gap-2 ${state.isPlaying ? 'bg-rose-500 text-white' : 'bg-blue-600 text-white'}">
-            <i data-lucide="${state.isPlaying ? 'pause' : 'play'}" class="w-4 h-4"></i> ${state.isPlaying ? 'Stop' : 'Listen'}
+          <h2 class="text-xl font-bold text-blue-900">ENGLISH STORY</h2>
+          <button onclick="playStory()" class="px-5 py-2 rounded-full text-base font-bold shadow flex items-center gap-2 ${state.isPlaying ? 'bg-rose-500 text-white' : 'bg-blue-600 text-white'}">
+            <i data-lucide="${state.isPlaying ? 'pause' : 'play'}" class="w-5 h-5"></i> ${state.isPlaying ? 'Stop' : 'Listen'}
           </button>
         </div>
-        <p class="text-lg leading-loose text-justify text-slate-800 font-serif">
+        <p class="text-2xl leading-loose text-justify text-slate-800 font-serif">
           ${words}
         </p>
       </div>
-      <div class="bg-slate-100 p-6 rounded-lg border-l-4 border-slate-400">
-        <h2 class="text-md font-bold text-slate-600 mb-2">日本語訳</h2>
-        <p class="leading-relaxed text-slate-700 text-sm">${STORY.jp}</p>
+      <div class="bg-slate-100 p-8 rounded-lg border-l-4 border-slate-400">
+        <h2 class="text-lg font-bold text-slate-600 mb-3">日本語訳</h2>
+        <p class="leading-loose text-slate-700 text-lg">${STORY.jp}</p>
       </div>
     </div>
     `;
 }
 
 function renderVocabComponent() {
-    const isAllSelected = state.selectedIds.size === VOCAB_LIST.length;
+  const isAllSelected = state.selectedIds.size === VOCAB_LIST.length;
 
-    // Menu Item Helper
-    const menuItem = (id, label, icon) => `
+  // Menu Item Helper
+  const menuItem = (id, label, icon) => `
         <button onclick="onPrintRequest('${id}')" class="w-full text-left px-4 py-3 hover:bg-blue-50 flex items-center gap-3 border-b last:border-0 text-slate-700 text-sm">
             <span class="text-blue-500"><i data-lucide="${icon}" class="w-4 h-4"></i></span> ${label}
         </button>
     `;
 
-    return `
+  return `
     <div class="space-y-4">
         <!-- Toolbar -->
-        <div class="bg-blue-50 border border-blue-200 p-3 rounded flex justify-between items-center sticky top-36 z-10 shadow-sm">
-            <button onclick="toggleAll()" class="flex items-center gap-2 font-bold text-slate-700 text-sm">
-                <i data-lucide="${isAllSelected ? 'check-square' : 'square'}" class="${isAllSelected ? 'text-blue-600' : ''} w-4 h-4"></i>
+        <div class="bg-blue-50 border border-blue-200 p-4 rounded flex justify-between items-center sticky top-36 z-10 shadow-sm">
+            <button onclick="toggleAll()" class="flex items-center gap-2 font-bold text-slate-700 text-lg">
+                <i data-lucide="${isAllSelected ? 'check-square' : 'square'}" class="${isAllSelected ? 'text-blue-600' : ''} w-6 h-6"></i>
                 全選択 (${state.selectedIds.size})
             </button>
             
             <div class="relative">
-                <button onclick="toggleMenu()" class="bg-blue-700 text-white px-4 py-2 rounded shadow font-bold text-sm flex items-center gap-2 hover:bg-blue-800">
-                  <i data-lucide="printer" class="w-4 h-4"></i> プリント作成
+                <button onclick="toggleMenu()" class="bg-blue-700 text-white px-6 py-3 rounded shadow font-bold text-base flex items-center gap-2 hover:bg-blue-800">
+                  <i data-lucide="printer" class="w-6 h-6"></i> プリント作成
                 </button>
                 ${state.showMenu ? `
-                  <div class="absolute right-0 top-full mt-2 w-56 bg-white rounded shadow-xl border border-slate-200 z-30 animate-in fade-in zoom-in duration-200">
-                    <div class="bg-slate-100 p-2 text-xs font-bold text-slate-500 border-b">形式を選択</div>
+                  <div class="absolute right-0 top-full mt-2 w-64 bg-white rounded shadow-xl border border-slate-200 z-30 animate-in fade-in zoom-in duration-200">
+                    <div class="bg-slate-100 p-3 text-sm font-bold text-slate-500 border-b">形式を選択</div>
                     ${menuItem('list', '暗記リスト', 'list')}
                     ${menuItem('test-meaning', '意味テスト', 'file-question')}
                     ${menuItem('test-spelling', 'スペルテスト', 'file-question')}
@@ -310,42 +310,42 @@ function renderVocabComponent() {
 }
 
 function renderVocabCard(item) {
-    const isSelected = state.selectedIds.has(item.id);
-    const isExpanded = state.expandedVocabIds.has(item.id);
+  const isSelected = state.selectedIds.has(item.id);
+  const isExpanded = state.expandedVocabIds.has(item.id);
 
-    return `
+  return `
     <div class="bg-white rounded-lg shadow border transition-colors ${isSelected ? 'border-blue-400 bg-blue-50/30' : 'border-slate-200'}">
       <div class="flex">
-        <div onclick="toggleSelect(${item.id})" class="w-12 flex items-center justify-center cursor-pointer border-r border-slate-100 hover:bg-slate-50">
-          <i data-lucide="${isSelected ? 'check-square' : 'square'}" class="${isSelected ? 'text-blue-600' : 'text-slate-300'} w-5 h-5"></i>
+        <div onclick="toggleSelect(${item.id})" class="w-16 flex items-center justify-center cursor-pointer border-r border-slate-100 hover:bg-slate-50">
+          <i data-lucide="${isSelected ? 'check-square' : 'square'}" class="${isSelected ? 'text-blue-600' : 'text-slate-300'} w-8 h-8"></i>
         </div>
-        <div class="flex-1 p-3 cursor-pointer" onclick="toggleVocabExpand(${item.id})">
+        <div class="flex-1 p-5 cursor-pointer" onclick="toggleVocabExpand(${item.id})">
           <div class="flex justify-between items-center">
-            <div class="flex items-center gap-3">
-              <span class="bg-blue-100 text-blue-800 text-xs font-bold px-2 py-1 rounded">${item.id}</span>
-              <h3 class="text-lg font-bold ${isSelected ? 'text-slate-900' : 'text-slate-500'}">${item.word}</h3>
-              <button onclick="event.stopPropagation(); playWord('${item.word}')" class="p-1 hover:bg-slate-100 rounded-full">
-                <i data-lucide="volume-2" class="w-4 h-4"></i>
+            <div class="flex items-center gap-4">
+              <span class="bg-blue-100 text-blue-800 text-sm font-bold px-3 py-1 rounded">${item.id}</span>
+              <h3 class="text-2xl font-bold ${isSelected ? 'text-slate-900' : 'text-slate-500'}">${item.word}</h3>
+              <button onclick="event.stopPropagation(); playWord('${item.word}')" class="p-2 hover:bg-slate-100 rounded-full">
+                <i data-lucide="volume-2" class="w-6 h-6"></i>
               </button>
             </div>
-            <span class="text-slate-400 text-xs">${isExpanded ? '▲' : '▼'}</span>
+            <span class="text-slate-400 text-lg">${isExpanded ? '▲' : '▼'}</span>
           </div>
-          <p class="text-sm text-slate-600 mt-1 ml-10 truncate">${item.meaning}</p>
+          <p class="text-xl text-slate-700 mt-2 ml-14 truncate">${item.meaning}</p>
         </div>
       </div>
       
       ${isExpanded ? `
-        <div class="p-3 bg-slate-50 border-t ml-12">
+        <div class="p-5 bg-slate-50 border-t ml-16">
           ${item.sentence ? `
-            <div class="mb-3">
-              <div class="flex items-center gap-2 mb-1">
-                <span class="text-[10px] bg-slate-200 px-1 rounded">EX</span>
-                <button onclick="playWord('${item.sentence.replace(/'/g, "\\'")}')" class="text-xs flex items-center gap-1 border px-2 rounded bg-white">
-                    <i data-lucide="play" class="w-3 h-3"></i> Listen
+            <div class="mb-4">
+              <div class="flex items-center gap-3 mb-2">
+                <span class="text-xs bg-slate-200 px-2 rounded font-bold">EX</span>
+                <button onclick="playWord('${item.sentence.replace(/'/g, "\\'")}')" class="text-sm flex items-center gap-2 border px-3 py-1 rounded bg-white font-bold">
+                    <i data-lucide="play" class="w-4 h-4"></i> Listen
                 </button>
               </div>
-              <p class="text-sm">${item.sentence}</p>
-              <p class="text-xs text-slate-500">${item.translation}</p>
+              <p class="text-xl leading-relaxed">${item.sentence}</p>
+              <p class="text-lg text-slate-500 mt-1">${item.translation}</p>
             </div>
           ` : ''}
           <!-- Mic Feature Skipped for simplicity in this rendering pass, can be added if requested specifically again -->
@@ -359,25 +359,25 @@ function renderVocabCard(item) {
 }
 
 function renderPrintView() {
-    const { format, items } = state.printSettings;
-    const date = new Date().toLocaleDateString();
+  const { format, items } = state.printSettings;
+  const date = new Date().toLocaleDateString();
 
-    const getTitle = () => {
-        switch (format) {
-            case 'list': return '単語リスト';
-            case 'test-meaning': return '意味テスト';
-            case 'test-spelling': return 'スペルテスト';
-            case 'test-example': return '例文テスト';
-            case 'cards': return '単語カード';
-            case 'foldable': return '折りたたみシート';
-            default: return '印刷';
-        }
-    };
+  const getTitle = () => {
+    switch (format) {
+      case 'list': return '単語リスト';
+      case 'test-meaning': return '意味テスト';
+      case 'test-spelling': return 'スペルテスト';
+      case 'test-example': return '例文テスト';
+      case 'cards': return '単語カード';
+      case 'foldable': return '折りたたみシート';
+      default: return '印刷';
+    }
+  };
 
-    let contentHtml = '';
+  let contentHtml = '';
 
-    if (format === 'list') {
-        contentHtml = `
+  if (format === 'list') {
+    contentHtml = `
           <table class="w-full text-sm border-collapse">
             <thead>
               <tr class="bg-slate-100">
@@ -399,8 +399,8 @@ function renderPrintView() {
             </tbody>
           </table>
         `;
-    } else if (format === 'test-meaning') {
-        contentHtml = `
+  } else if (format === 'test-meaning') {
+    contentHtml = `
           <table class="w-full text-sm border-collapse">
             <thead>
               <tr class="bg-slate-100">
@@ -422,8 +422,8 @@ function renderPrintView() {
             </tbody>
           </table>
         `;
-    } else if (format === 'test-spelling') {
-        contentHtml = `
+  } else if (format === 'test-spelling') {
+    contentHtml = `
           <table class="w-full text-sm border-collapse">
             <thead>
               <tr class="bg-slate-100">
@@ -447,13 +447,13 @@ function renderPrintView() {
             </tbody>
           </table>
         `;
-    } else if (format === 'test-example') {
-        contentHtml = `
+  } else if (format === 'test-example') {
+    contentHtml = `
           <div class="space-y-6">
             ${items.map((item, i) => {
-            if (!item.sentence) return '';
-            const masked = item.sentence.replace(new RegExp(`\\b${item.word}\\b`, 'gi'), '_______');
-            return `
+      if (!item.sentence) return '';
+      const masked = item.sentence.replace(new RegExp(`\\b${item.word}\\b`, 'gi'), '_______');
+      return `
                 <div class="avoid-break border-b border-slate-300 pb-4">
                   <div class="flex gap-4">
                     <span class="font-bold w-6 text-center">${i + 1}.</span>
@@ -467,11 +467,11 @@ function renderPrintView() {
                   <div class="mt-2 ml-10 text-xs text-slate-400 italic">Hint: ${item.meaning}</div>
                 </div>
               `;
-        }).join('')}
+    }).join('')}
           </div>
         `;
-    } else if (format === 'cards') {
-        contentHtml = `
+  } else if (format === 'cards') {
+    contentHtml = `
           <div class="grid grid-cols-2 border-l border-t border-slate-300">
             ${items.map((item) => `
               <div class="avoid-break border-r border-b border-slate-300 h-40 flex flex-col items-center justify-center text-center p-4 relative">
@@ -487,8 +487,8 @@ function renderPrintView() {
             `).join('')}
           </div>
         `;
-    } else if (format === 'foldable') {
-        contentHtml = `
+  } else if (format === 'foldable') {
+    contentHtml = `
           <div class="relative">
             <p class="text-center text-xs italic mb-2 text-slate-400">--- Center Fold Line ---</p>
             <div class="grid grid-cols-2 border-2 border-black">
@@ -505,9 +505,9 @@ function renderPrintView() {
             <div class="absolute top-6 bottom-0 left-1/2 w-px border-l-2 border-dashed border-slate-400 transform -translate-x-1/2 pointer-events-none"></div>
           </div>
         `;
-    }
+  }
 
-    return `
+  return `
     <div class="print-container bg-white font-serif text-black">
       <!-- Control Bar -->
       <div class="no-print fixed top-0 left-0 right-0 bg-slate-800 text-white p-4 flex justify-between items-center shadow z-50">
