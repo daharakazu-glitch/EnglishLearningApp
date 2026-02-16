@@ -201,15 +201,15 @@ function renderHeader() {
   ).join('');
 
   return `
-    <header class="bg-blue-900 text-white p-6 shadow sticky top-0 z-20">
-        <div class="max-w-4xl mx-auto flex justify-between items-center">
+    <header class="bg-blue-900 text-white p-8 shadow sticky top-0 z-20">
+        <div class="max-w-5xl mx-auto flex justify-between items-center">
           <div>
-            <h1 class="font-bold text-3xl md:text-4xl leading-tight">${APP_META.title}</h1>
-            <p class="text-blue-200 text-lg mt-2">${APP_META.subTitle}</p>
+            <h1 class="font-bold text-4xl md:text-5xl leading-tight">${APP_META.title}</h1>
+            <p class="text-blue-200 text-2xl mt-3">${APP_META.subTitle}</p>
           </div>
-          <div class="bg-black/20 p-3 rounded flex items-center">
-            <i data-lucide="volume-2" class="text-blue-200 mr-3 w-6 h-6"></i>
-            <select class="bg-transparent text-white text-lg max-w-[200px]" onchange="setVoice(this.value)">
+          <div class="bg-black/20 p-4 rounded flex items-center">
+            <i data-lucide="volume-2" class="text-blue-200 mr-4 w-8 h-8"></i>
+            <select class="bg-transparent text-white text-xl max-w-[250px]" onchange="setVoice(this.value)">
                 ${options}
             </select>
           </div>
@@ -220,13 +220,13 @@ function renderHeader() {
 
 function renderTabNav() {
   return `
-    <div class="max-w-4xl mx-auto mt-6 px-4 sticky top-28 z-10">
+    <div class="max-w-5xl mx-auto mt-8 px-4 sticky top-40 z-10">
         <div class="flex bg-white rounded shadow border border-slate-200 overflow-hidden">
-          <button onclick="setTab('text')" class="flex-1 py-5 font-bold flex justify-center items-center gap-3 text-2xl ${state.tab === 'text' ? 'bg-blue-100 text-blue-900' : 'text-slate-500 hover:bg-slate-50'}">
-            <i data-lucide="file-text" class="w-7 h-7"></i> Text
+          <button onclick="setTab('text')" class="flex-1 py-6 font-bold flex justify-center items-center gap-4 text-3xl ${state.tab === 'text' ? 'bg-blue-100 text-blue-900' : 'text-slate-500 hover:bg-slate-50'}">
+            <i data-lucide="file-text" class="w-8 h-8"></i> Text
           </button>
-          <button onclick="setTab('vocab')" class="flex-1 py-5 font-bold flex justify-center items-center gap-3 text-2xl ${state.tab === 'vocab' ? 'bg-indigo-100 text-indigo-900' : 'text-slate-500 hover:bg-slate-50'}">
-            <i data-lucide="book-open" class="w-7 h-7"></i> Vocab
+          <button onclick="setTab('vocab')" class="flex-1 py-6 font-bold flex justify-center items-center gap-4 text-3xl ${state.tab === 'vocab' ? 'bg-indigo-100 text-indigo-900' : 'text-slate-500 hover:bg-slate-50'}">
+            <i data-lucide="book-open" class="w-8 h-8"></i> Vocab
           </button>
         </div>
     </div>
@@ -244,21 +244,21 @@ function renderTextComponent() {
   }).join('');
 
   return `
-    <div class="space-y-8">
-      <div class="bg-white p-8 rounded-lg shadow-md border-l-8 border-blue-800">
-        <div class="flex justify-between items-center mb-6">
-          <h2 class="text-2xl font-bold text-blue-900">ENGLISH STORY</h2>
-          <button onclick="playStory()" class="px-6 py-3 rounded-full text-lg font-bold shadow flex items-center gap-3 ${state.isPlaying ? 'bg-rose-500 text-white' : 'bg-blue-600 text-white'}">
-            <i data-lucide="${state.isPlaying ? 'pause' : 'play'}" class="w-6 h-6"></i> ${state.isPlaying ? 'Stop' : 'Listen'}
+    <div class="space-y-10">
+      <div class="bg-white p-10 rounded-lg shadow-md border-l-[12px] border-blue-800">
+        <div class="flex justify-between items-center mb-8">
+          <h2 class="text-4xl font-bold text-blue-900">ENGLISH STORY</h2>
+          <button onclick="playStory()" class="px-8 py-4 rounded-full text-2xl font-bold shadow flex items-center gap-4 ${state.isPlaying ? 'bg-rose-500 text-white' : 'bg-blue-600 text-white'}">
+            <i data-lucide="${state.isPlaying ? 'pause' : 'play'}" class="w-8 h-8"></i> ${state.isPlaying ? 'Stop' : 'Listen'}
           </button>
         </div>
-        <p class="text-3xl leading-[2.0] text-justify text-slate-800 font-serif tracking-wide">
+        <p class="text-[40px] leading-[1.8] text-justify text-slate-800 font-serif tracking-wide">
           ${words}
         </p>
       </div>
-      <div class="bg-slate-100 p-10 rounded-lg border-l-8 border-slate-400">
-        <h2 class="text-xl font-bold text-slate-600 mb-4">日本語訳</h2>
-        <p class="leading-[2.0] text-slate-700 text-xl">${STORY.jp}</p>
+      <div class="bg-slate-100 p-12 rounded-lg border-l-[12px] border-slate-400">
+        <h2 class="text-3xl font-bold text-slate-600 mb-6">日本語訳</h2>
+        <p class="leading-[1.8] text-slate-700 text-3xl">${STORY.jp}</p>
       </div>
     </div>
     `;
@@ -316,36 +316,36 @@ function renderVocabCard(item) {
   return `
     <div class="bg-white rounded-lg shadow border transition-colors ${isSelected ? 'border-blue-400 bg-blue-50/30' : 'border-slate-200'}">
       <div class="flex">
-        <div onclick="toggleSelect(${item.id})" class="w-20 flex items-center justify-center cursor-pointer border-r border-slate-100 hover:bg-slate-50">
-          <i data-lucide="${isSelected ? 'check-square' : 'square'}" class="${isSelected ? 'text-blue-600' : 'text-slate-300'} w-10 h-10"></i>
+        <div onclick="toggleSelect(${item.id})" class="w-24 flex items-center justify-center cursor-pointer border-r border-slate-100 hover:bg-slate-50">
+          <i data-lucide="${isSelected ? 'check-square' : 'square'}" class="${isSelected ? 'text-blue-600' : 'text-slate-300'} w-12 h-12"></i>
         </div>
-        <div class="flex-1 p-6 cursor-pointer" onclick="toggleVocabExpand(${item.id})">
+        <div class="flex-1 p-8 cursor-pointer" onclick="toggleVocabExpand(${item.id})">
           <div class="flex justify-between items-center">
-            <div class="flex items-center gap-5">
-              <span class="bg-blue-100 text-blue-800 text-lg font-bold px-4 py-1.5 rounded">${item.id}</span>
-              <h3 class="text-3xl font-bold ${isSelected ? 'text-slate-900' : 'text-slate-500'}">${item.word}</h3>
-              <button onclick="event.stopPropagation(); playWord('${item.word}')" class="p-3 hover:bg-slate-100 rounded-full">
-                <i data-lucide="volume-2" class="w-8 h-8"></i>
+            <div class="flex items-center gap-6">
+              <span class="bg-blue-100 text-blue-800 text-xl font-bold px-5 py-2 rounded">${item.id}</span>
+              <h3 class="text-4xl font-bold ${isSelected ? 'text-slate-900' : 'text-slate-500'}">${item.word}</h3>
+              <button onclick="event.stopPropagation(); playWord('${item.word}')" class="p-4 hover:bg-slate-100 rounded-full">
+                <i data-lucide="volume-2" class="w-10 h-10"></i>
               </button>
             </div>
-            <span class="text-slate-400 text-xl">${isExpanded ? '▲' : '▼'}</span>
+            <span class="text-slate-400 text-2xl">${isExpanded ? '▲' : '▼'}</span>
           </div>
-          <p class="text-2xl text-slate-700 mt-3 ml-16 truncate">${item.meaning}</p>
+          <p class="text-3xl text-slate-700 mt-4 ml-20 truncate">${item.meaning}</p>
         </div>
       </div>
       
       ${isExpanded ? `
-        <div class="p-6 bg-slate-50 border-t ml-20">
+        <div class="p-8 bg-slate-50 border-t ml-24">
           ${item.sentence ? `
-            <div class="mb-5">
-              <div class="flex items-center gap-4 mb-3">
-                <span class="text-sm bg-slate-200 px-3 py-1 rounded font-bold">EX</span>
-                <button onclick="playWord('${item.sentence.replace(/'/g, "\\'")}')" class="text-base flex items-center gap-2 border px-4 py-2 rounded bg-white font-bold">
-                    <i data-lucide="play" class="w-5 h-5"></i> Listen
+            <div class="mb-6">
+              <div class="flex items-center gap-5 mb-4">
+                <span class="text-base bg-slate-200 px-4 py-2 rounded font-bold">EX</span>
+                <button onclick="playWord('${item.sentence.replace(/'/g, "\\'")}')" class="text-xl flex items-center gap-3 border px-5 py-3 rounded bg-white font-bold">
+                    <i data-lucide="play" class="w-6 h-6"></i> Listen
                 </button>
               </div>
-              <p class="text-2xl leading-relaxed">${item.sentence}</p>
-              <p class="text-xl text-slate-500 mt-2">${item.translation}</p>
+              <p class="text-3xl leading-relaxed">${item.sentence}</p>
+              <p class="text-2xl text-slate-500 mt-3">${item.translation}</p>
             </div>
           ` : ''}
           <!-- Mic Feature Skipped for simplicity in this rendering pass, can be added if requested specifically again -->
