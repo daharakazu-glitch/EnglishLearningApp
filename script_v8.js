@@ -195,7 +195,8 @@ function renderAppView() {
 
 function renderHeader() {
   // Voices options
-  const voices = window.speechSynthesis.getVoices().filter(v => v.lang.startsWith('en'));
+  // Voices options
+  const voices = window.speechSynthesis.getVoices().filter(v => v.name.includes('Google') && v.lang.startsWith('en'));
   const options = voices.map(v =>
     `<option value="${v.name}" ${state.voice?.name === v.name ? 'selected' : ''} class="text-black">${v.name}</option>`
   ).join('');
