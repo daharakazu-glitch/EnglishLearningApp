@@ -204,7 +204,7 @@ function renderHeader() {
     <header class="bg-blue-900 text-white p-5 shadow sticky top-0 z-20">
         <div class="max-w-4xl mx-auto flex justify-between items-center">
           <div>
-            <h1 class="font-bold text-2xl md:text-3xl leading-tight">${APP_META.title} <span class="text-xs bg-blue-700 px-2 py-0.5 rounded ml-2 align-middle">v5.0</span></h1>
+            <h1 class="font-bold text-2xl md:text-3xl leading-tight">${APP_META.title} <span class="text-xs bg-rose-600 text-white px-2 py-0.5 rounded ml-2 align-middle">v5.1 (Fixed)</span></h1>
             <p class="text-blue-200 text-lg mt-1">${APP_META.subTitle}</p>
           </div>
           <div class="bg-black/20 p-2 rounded flex items-center">
@@ -321,7 +321,7 @@ function renderVocabCard(item) {
         </div>
         <div class="flex-1 flex cursor-pointer" onclick="toggleVocabExpand(${item.id})">
           <!-- ID Column -->
-          <div class="pt-6 pl-4 pr-2">
+          <div class="pt-6 pl-4 pr-2 w-24 flex-shrink-0">
             <span class="bg-blue-100 text-blue-800 text-base font-bold w-12 h-8 flex items-center justify-center rounded">${item.id}</span>
           </div>
           <!-- Content Column -->
