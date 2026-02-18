@@ -322,7 +322,7 @@ function renderVocabCard(item) {
         <div class="flex-1 p-5 cursor-pointer" onclick="toggleVocabExpand(${item.id})">
           <div class="flex justify-between items-center">
             <div class="flex items-center gap-4">
-              <span class="bg-blue-100 text-blue-800 text-base font-bold w-12 text-center py-1 rounded inline-block">${item.id}</span>
+              <span class="bg-blue-100 text-blue-800 text-base font-bold w-14 h-9 flex items-center justify-center rounded flex-shrink-0">${item.id}</span>
               <h3 class="text-2xl font-bold ${isSelected ? 'text-slate-900' : 'text-slate-500'}">${item.word}</h3>
               <button onclick="event.stopPropagation(); playWord('${item.word}')" class="p-2 hover:bg-slate-100 rounded-full">
                 <i data-lucide="volume-2" class="w-6 h-6"></i>
