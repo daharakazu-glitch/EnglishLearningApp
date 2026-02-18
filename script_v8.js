@@ -204,7 +204,7 @@ function renderHeader() {
     <header class="bg-blue-900 text-white p-5 shadow sticky top-0 z-20">
         <div class="max-w-4xl mx-auto flex justify-between items-center">
           <div>
-            <h1 class="font-bold text-2xl md:text-3xl leading-tight">${APP_META.title} <span class="text-xs bg-purple-600 text-white px-2 py-0.5 rounded ml-2 align-middle">v5.3 (Inline)</span></h1>
+            <h1 class="font-bold text-2xl md:text-3xl leading-tight">${APP_META.title}</h1>
             <p class="text-blue-200 text-lg mt-1">${APP_META.subTitle}</p>
           </div>
           <div class="bg-black/20 p-2 rounded flex items-center">
