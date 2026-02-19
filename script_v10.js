@@ -19,7 +19,18 @@ let state = {
   textData: null,
   vocabList: [],
   showMenu: false,
-  expandedVocabIds: new Set()
+  expandedVocabIds: new Set(),
+  // New Features State
+  showHighlights: true,
+  showTranslation: true,
+  recordingState: {
+    isRecording: false,
+    targetId: null,
+    targetType: null, // 'word' or 'sentence'
+    transcript: null,
+    score: null,
+    feedback: null
+  }
 };
 
 // Data (will be loaded from JSON)
@@ -116,6 +127,14 @@ function toggleMenu() {
   setState({ showMenu: !state.showMenu });
 }
 
+function toggleHighlights() {
+  setState({ showHighlights: !state.showHighlights });
+}
+
+function toggleTranslation() {
+  setState({ showTranslation: !state.showTranslation });
+}
+
 function toggleVocabExpand(id) {
   const newSet = new Set(state.expandedVocabIds);
   if (newSet.has(id)) newSet.delete(id); else newSet.add(id);
@@ -163,6 +182,127 @@ function playWord(text) {
   const ut = new SpeechSynthesisUtterance(text);
   if (state.voice) ut.voice = state.voice;
   window.speechSynthesis.speak(ut);
+}
+
+// --- Recording & Scoring Logic ---
+
+function startRecording(id, type, targetText) {
+  if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+    alert("このブラウザは音声認識に対応していません。ChromeまたはEdgeをご利用ください。");
+    return;
+  }
+
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  const recognition = new SpeechRecognition();
+  recognition.lang = 'en-US';
+  recognition.interimResults = false;
+  recognition.maxAlternatives = 1;
+
+  setState({
+    recordingState: {
+      isRecording: true,
+      targetId: id,
+      targetType: type,
+      transcript: null,
+      score: null,
+      feedback: null
+    }
+  });
+
+  recognition.start();
+
+  recognition.onresult = (event) => {
+    const transcript = event.results[0][0].transcript;
+    const { score, feedback } = checkPronunciation(targetText, transcript);
+
+    setState({
+      recordingState: {
+        isRecording: false,
+        targetId: id,
+        targetType: type,
+        transcript: transcript,
+        score: score,
+        feedback: feedback
+      }
+    });
+  };
+
+  recognition.onerror = (event) => {
+    console.error("Speech recognition error", event.error);
+    setState({
+      recordingState: {
+        isRecording: false,
+        targetId: id,
+        targetType: type,
+        transcript: "Error: " + event.error,
+        score: 0,
+        feedback: "Could not hear you. Please try again."
+      }
+    });
+  };
+
+  recognition.onend = () => {
+    if (state.recordingState.isRecording) {
+      // If ended without result (e.g. silence)
+      setState({
+        recordingState: { ...state.recordingState, isRecording: false }
+      });
+    }
+  };
+}
+
+function checkPronunciation(target, spoken) {
+  // Normalize: lowercase, remove punctuation
+  const clean = (str) => str.toLowerCase().replace(/[^a-z0-9\s]/g, '').trim();
+  const t = clean(target);
+  const s = clean(spoken);
+
+  if (!s) return { score: 0, feedback: "No sound detected." };
+
+  if (t === s) {
+    return { score: 100, feedback: "Excellent! Perfect pronunciation." };
+  }
+
+  // Levenshtein Distance for lenient scoring
+  const distance = levenshtein(t, s);
+  const maxLength = Math.max(t.length, s.length);
+  const similarity = (1 - distance / maxLength) * 100;
+
+  let score = Math.round(similarity);
+  let feedback = "";
+
+  // Boost score slightly to be lenient, but cap at 98 if not perfect
+  if (score > 80) score = Math.min(98, score + 5);
+
+  if (score >= 80) feedback = "Great job! Very close.";
+  else if (score >= 60) feedback = "Good effort. Try to articulate clearly.";
+  else feedback = "Keep practicing. Listen and try again.";
+
+  return { score, feedback };
+}
+
+// Levenshtein Distance Helper
+function levenshtein(a, b) {
+  const matrix = [];
+  for (let i = 0; i <= b.length; i++) {
+    matrix[i] = [i];
+  }
+  for (let j = 0; j <= a.length; j++) {
+    matrix[0][j] = j;
+  }
+  for (let i = 1; i <= b.length; i++) {
+    for (let j = 1; j <= a.length; j++) {
+      if (b.charAt(i - 1) == a.charAt(j - 1)) {
+        matrix[i][j] = matrix[i - 1][j - 1];
+      } else {
+        matrix[i][j] = Math.min(
+          matrix[i - 1][j - 1] + 1,
+          Math.min(matrix[i][j - 1] + 1, matrix[i - 1][j] + 1)
+        );
+      }
+    }
+  }
+  return matrix[b.length][a.length];
 }
 
 // ======================================================================
@@ -238,7 +378,7 @@ function renderTextComponent() {
   const words = STORY.en.split(/(\s+)/).map((word) => {
     // Simple includes check for highlights
     const isHighlight = HIGHLIGHTS.some(h => word.toLowerCase().includes(h.toLowerCase()) && word.trim().length > 1);
-    if (isHighlight) {
+    if (isHighlight && state.showHighlights) {
       return `<span class="bg-yellow-200 text-blue-900 font-bold px-1 rounded">${word}</span>`;
     }
     return word;
@@ -246,6 +386,20 @@ function renderTextComponent() {
 
   return `
     <div class="space-y-6">
+    <div class="space-y-6">
+      
+      <!-- Text Controls -->
+      <div class="flex flex-wrap gap-4 mb-2">
+        <button onclick="toggleHighlights()" class="px-4 py-2 rounded-full text-sm font-bold border transition-colors flex items-center gap-2 ${state.showHighlights ? 'bg-yellow-100 border-yellow-300 text-yellow-800' : 'bg-white border-slate-300 text-slate-500'}">
+          <i data-lucide="${state.showHighlights ? 'highlighter' : 'minus'}" class="w-4 h-4"></i>
+          Highlights: ${state.showHighlights ? 'ON' : 'OFF'}
+        </button>
+        <button onclick="toggleTranslation()" class="px-4 py-2 rounded-full text-sm font-bold border transition-colors flex items-center gap-2 ${state.showTranslation ? 'bg-blue-100 border-blue-300 text-blue-800' : 'bg-white border-slate-300 text-slate-500'}">
+          <i data-lucide="${state.showTranslation ? 'languages' : 'minus'}" class="w-4 h-4"></i>
+          Original/Translation
+        </button>
+      </div>
+
       <div class="bg-white p-6 rounded-lg shadow-md border-l-4 border-blue-800">
         <div class="flex justify-between items-center mb-4">
           <h2 class="text-xl font-bold text-blue-900">ENGLISH STORY</h2>
@@ -257,10 +411,13 @@ function renderTextComponent() {
           ${words}
         </p>
       </div>
-      <div class="bg-slate-100 p-6 rounded-lg border-l-4 border-slate-400">
+
+      ${state.showTranslation ? `
+      <div class="bg-slate-100 p-6 rounded-lg border-l-4 border-slate-400 animate-in fade-in slide-in-from-top-4 duration-300">
         <h2 class="text-lg font-bold text-slate-600 mb-3">日本語訳</h2>
         <p class="leading-loose text-slate-700 text-lg">${STORY.jp}</p>
       </div>
+      ` : ''}
     </div>
     `;
 }
@@ -349,14 +506,73 @@ function renderVocabCard(item) {
               <p class="text-lg text-slate-500 mt-1">${item.translation}</p>
             </div>
           ` : ''}
-          <!-- Mic Feature Skipped for simplicity in this rendering pass, can be added if requested specifically again -->
-           <div class="flex items-center gap-3 mt-2 pt-2 border-t border-slate-200">
-             <span class="text-xs text-slate-400">Recorder feature coming soon</span>
+          ` : ''}
+          
+           <!-- Recording Section -->
+           <div class="mt-4 pt-4 border-t border-slate-200">
+             <div class="flex flex-col gap-3">
+               
+               <!-- Word Recording -->
+               <div class="flex items-center justify-between bg-white p-3 rounded border border-slate-200">
+                 <span class="font-bold text-slate-600 text-sm">Pronunciation</span>
+                 ${renderRecorder(item.id, 'word', item.word)}
+               </div>
+
+               <!-- Sentence Recording (if exists) -->
+               ${item.sentence ? `
+               <div class="flex items-center justify-between bg-white p-3 rounded border border-slate-200">
+                 <span class="font-bold text-slate-600 text-sm">Sentence</span>
+                 ${renderRecorder(item.id, 'sentence', item.sentence)}
+               </div>
+               ` : ''}
+
+             </div>
            </div>
+
         </div>
-      ` : ''}
-    </div>
-    `;
+      ` : ''
+}
+    </div >
+  `;
+}
+
+function renderRecorder(id, type, targetText) {
+  const { isRecording, targetId, targetType, score, feedback, transcript } = state.recordingState;
+  const isCurrent = targetId === id && targetType === type;
+  const safeText = targetText.replace(/'/g, "\\'");
+
+  if (isCurrent && isRecording) {
+    return `
+  < button class="bg-rose-100 text-rose-600 px-4 py-2 rounded-full font-bold flex items-center gap-2 animate-pulse" >
+    <i data-lucide="mic" class="w-4 h-4"></i> Listening...
+      </button >
+  `;
+  }
+
+  if (isCurrent && score !== null) {
+    const colorClass = score >= 80 ? 'text-green-600 bg-green-50 border-green-200' : 'text-orange-600 bg-orange-50 border-orange-200';
+    return `
+  < div class="flex items-center gap-3" >
+        <div class="text-right">
+            <div class="text-xs text-slate-400">You said: "${transcript}"</div>
+            <div class="font-bold text-sm ${score >= 80 ? 'text-green-600' : 'text-orange-500'}">${feedback}</div>
+        </div>
+        <div class="flex flex-col items-center justify-center w-12 h-12 rounded-full border-2 ${colorClass}">
+            <span class="text-xs font-bold">SCORE</span>
+            <span class="text-lg font-bold leading-none">${score}</span>
+        </div>
+        <button onclick="startRecording(${id}, '${type}', '${safeText}')" class="p-2 bg-slate-100 rounded-full hover:bg-slate-200">
+            <i data-lucide="rotate-ccw" class="w-4 h-4 text-slate-500"></i>
+        </button>
+      </div >
+  `;
+  }
+
+  return `
+  < button onclick = "startRecording(${id}, '${type}', '${safeText}')" class="bg-blue-50 text-blue-600 hover:bg-blue-100 px-4 py-2 rounded-full font-bold text-sm flex items-center gap-2 transition-colors" >
+    <i data-lucide="mic" class="w-4 h-4"></i> Record
+    </button >
+  `;
 }
 
 function renderPrintView() {
@@ -379,7 +595,7 @@ function renderPrintView() {
 
   if (format === 'list') {
     contentHtml = `
-          <table class="w-full text-sm border-collapse">
+  < table class="w-full text-sm border-collapse" >
             <thead>
               <tr class="bg-slate-100">
                 <th class="border border-black p-2 w-10 text-center">No.</th>
@@ -398,11 +614,11 @@ function renderPrintView() {
                 </tr>
               `).join('')}
             </tbody>
-          </table>
-        `;
+          </table >
+  `;
   } else if (format === 'test-meaning') {
     contentHtml = `
-          <table class="w-full text-sm border-collapse">
+  < table class="w-full text-sm border-collapse" >
             <thead>
               <tr class="bg-slate-100">
                 <th class="border border-black p-2 w-10 text-center">No.</th>
@@ -421,11 +637,11 @@ function renderPrintView() {
                 </tr>
               `).join('')}
             </tbody>
-          </table>
-        `;
+          </table >
+  `;
   } else if (format === 'test-spelling') {
     contentHtml = `
-          <table class="w-full text-sm border-collapse">
+  < table class="w-full text-sm border-collapse" >
             <thead>
               <tr class="bg-slate-100">
                 <th class="border border-black p-2 w-10 text-center">No.</th>
@@ -446,15 +662,16 @@ function renderPrintView() {
                 </tr>
               `).join('')}
             </tbody>
-          </table>
-        `;
+          </table >
+  `;
   } else if (format === 'test-example') {
     contentHtml = `
-          <div class="space-y-6">
-            ${items.map((item, i) => {
-      if (!item.sentence) return '';
-      const masked = item.sentence.replace(new RegExp(`\\b${item.word}\\b`, 'gi'), '_______');
-      return `
+  < div class="space-y-6" >
+    ${
+      items.map((item, i) => {
+        if (!item.sentence) return '';
+        const masked = item.sentence.replace(new RegExp(`\\b${item.word}\\b`, 'gi'), '_______');
+        return `
                 <div class="avoid-break border-b border-slate-300 pb-4">
                   <div class="flex gap-4">
                     <span class="font-bold w-6 text-center">${i + 1}.</span>
@@ -468,13 +685,15 @@ function renderPrintView() {
                   <div class="mt-2 ml-10 text-xs text-slate-400 italic">Hint: ${item.meaning}</div>
                 </div>
               `;
-    }).join('')}
-          </div>
-        `;
+      }).join('')
+}
+          </div >
+  `;
   } else if (format === 'cards') {
     contentHtml = `
-          <div class="grid grid-cols-2 border-l border-t border-slate-300">
-            ${items.map((item) => `
+  < div class="grid grid-cols-2 border-l border-t border-slate-300" >
+    ${
+      items.map((item) => `
               <div class="avoid-break border-r border-b border-slate-300 h-40 flex flex-col items-center justify-center text-center p-4 relative">
                 <span class="absolute top-2 left-2 text-xs text-slate-400">No. ${item.id}</span>
                 <p class="text-2xl font-bold mb-2">${item.word}</p>
@@ -485,12 +704,13 @@ function renderPrintView() {
                 <span class="absolute -bottom-1 -left-1 w-2 h-2 border-l border-b border-black"></span>
                 <span class="absolute -bottom-1 -right-1 w-2 h-2 border-r border-b border-black"></span>
               </div>
-            `).join('')}
-          </div>
-        `;
+            `).join('')
+}
+          </div >
+  `;
   } else if (format === 'foldable') {
     contentHtml = `
-          <div class="relative">
+  < div class="relative" >
             <p class="text-center text-xs italic mb-2 text-slate-400">--- Center Fold Line ---</p>
             <div class="grid grid-cols-2 border-2 border-black">
               ${items.map((item, i) => `
@@ -504,13 +724,13 @@ function renderPrintView() {
               `).join('')}
             </div>
             <div class="absolute top-6 bottom-0 left-1/2 w-px border-l-2 border-dashed border-slate-400 transform -translate-x-1/2 pointer-events-none"></div>
-          </div>
-        `;
+          </div >
+  `;
   }
 
   return `
-    <div class="print-container bg-white font-serif text-black">
-      <!-- Control Bar -->
+  < div class="print-container bg-white font-serif text-black" >
+      < !--Control Bar-- >
       <div class="no-print fixed top-0 left-0 right-0 bg-slate-800 text-white p-4 flex justify-between items-center shadow z-50">
         <div class="flex items-center gap-4">
           <button onclick="backToApp()" class="flex items-center gap-2 hover:text-blue-300">
@@ -527,25 +747,25 @@ function renderPrintView() {
         </button>
       </div>
 
-      <!-- Spacer -->
+      <!--Spacer -->
       <div class="h-24 no-print"></div>
 
-      <!-- Paper -->
-      <div class="paper">
-        <header class="border-b-2 border-black pb-2 mb-6 flex justify-between items-end avoid-break">
-          <div>
-            <h1 class="text-xl font-bold">${APP_META.title}</h1>
-            <p class="text-sm">${APP_META.subTitle} - ${getTitle()}</p>
-          </div>
-          <div class="text-right text-sm">
-            <p>Date: ${date}</p>
-            <div class="mt-4 border-b border-black w-32"></div>
-            <p class="text-xs">Name</p>
-          </div>
-        </header>
-
-        ${contentHtml}
+      <!--Paper -->
+  <div class="paper">
+    <header class="border-b-2 border-black pb-2 mb-6 flex justify-between items-end avoid-break">
+      <div>
+        <h1 class="text-xl font-bold">${APP_META.title}</h1>
+        <p class="text-sm">${APP_META.subTitle} - ${getTitle()}</p>
       </div>
-    </div>
-    `;
+      <div class="text-right text-sm">
+        <p>Date: ${date}</p>
+        <div class="mt-4 border-b border-black w-32"></div>
+        <p class="text-xs">Name</p>
+      </div>
+    </header>
+
+    ${contentHtml}
+  </div>
+    </div >
+  `;
 }
