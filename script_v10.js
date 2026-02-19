@@ -375,8 +375,11 @@ function renderTabNav() {
 
 function renderTextComponent() {
   const words = STORY.en.split(/(\s+)/).map((word) => {
-    // Simple includes check for highlights
-    const isHighlight = HIGHLIGHTS.some(h => word.toLowerCase().includes(h.toLowerCase()) && word.trim().length > 1);
+    // Regex check for whole word match (case insensitive)
+    const isHighlight = HIGHLIGHTS.some(h => {
+      const regex = new RegExp(`\\b${h}\\b`, 'i');
+      return regex.test(word);
+    });
 
     if (isHighlight) {
       if (state.showHighlights) {
