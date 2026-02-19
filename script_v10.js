@@ -377,8 +377,16 @@ function renderTextComponent() {
   const words = STORY.en.split(/(\s+)/).map((word) => {
     // Simple includes check for highlights
     const isHighlight = HIGHLIGHTS.some(h => word.toLowerCase().includes(h.toLowerCase()) && word.trim().length > 1);
-    if (isHighlight && state.showHighlights) {
-      return `<span class="bg-yellow-200 text-blue-900 font-bold px-1 rounded">${word}</span>`;
+
+    if (isHighlight) {
+      if (state.showHighlights) {
+        // ON: Show word with highlight
+        return `<span class="bg-yellow-200 text-blue-900 font-bold px-1 rounded transition-all duration-300">${word}</span>`;
+      } else {
+        // OFF: Hide word (keep background, text transparent)
+        // using text-transparent allows the word to take up space but be invisible
+        return `<span class="bg-slate-300 text-transparent font-bold px-1 rounded select-none cursor-pointer transition-all duration-300" onclick="toggleHighlights()">${word}</span>`;
+      }
     }
     return word;
   }).join('');
@@ -388,9 +396,9 @@ function renderTextComponent() {
       
       <!-- Text Controls -->
       <div class="flex flex-wrap gap-4 mb-2">
-        <button onclick="toggleHighlights()" class="px-4 py-2 rounded-full text-sm font-bold border transition-colors flex items-center gap-2 ${state.showHighlights ? 'bg-yellow-100 border-yellow-300 text-yellow-800' : 'bg-white border-slate-300 text-slate-500'}">
-          <i data-lucide="${state.showHighlights ? 'highlighter' : 'minus'}" class="w-4 h-4"></i>
-          Highlights: ${state.showHighlights ? 'ON' : 'OFF'}
+        <button onclick="toggleHighlights()" class="px-4 py-2 rounded-full text-sm font-bold border transition-colors flex items-center gap-2 ${state.showHighlights ? 'bg-yellow-100 border-yellow-300 text-yellow-800' : 'bg-slate-100 border-slate-300 text-slate-500'}">
+          <i data-lucide="${state.showHighlights ? 'eye' : 'eye-off'}" class="w-4 h-4"></i>
+          Vocab: ${state.showHighlights ? 'Visible' : 'Hidden'}
         </button>
         <button onclick="toggleTranslation()" class="px-4 py-2 rounded-full text-sm font-bold border transition-colors flex items-center gap-2 ${state.showTranslation ? 'bg-blue-100 border-blue-300 text-blue-800' : 'bg-white border-slate-300 text-slate-500'}">
           <i data-lucide="${state.showTranslation ? 'languages' : 'minus'}" class="w-4 h-4"></i>
