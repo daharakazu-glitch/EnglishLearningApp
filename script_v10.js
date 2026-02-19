@@ -335,7 +335,6 @@ function renderAppView() {
 
 function renderHeader() {
   // Voices options
-  // Voices options
   const voices = window.speechSynthesis.getVoices().filter(v => v.name.includes('Google') && v.lang.startsWith('en'));
   const options = voices.map(v =>
     `<option value="${v.name}" ${state.voice?.name === v.name ? 'selected' : ''} class="text-black">${v.name}</option>`
@@ -385,7 +384,6 @@ function renderTextComponent() {
   }).join('');
 
   return `
-    <div class="space-y-6">
     <div class="space-y-6">
       
       <!-- Text Controls -->
@@ -506,7 +504,6 @@ function renderVocabCard(item) {
               <p class="text-lg text-slate-500 mt-1">${item.translation}</p>
             </div>
           ` : ''}
-          ` : ''}
           
            <!-- Recording Section -->
            <div class="mt-4 pt-4 border-t border-slate-200">
@@ -530,10 +527,9 @@ function renderVocabCard(item) {
            </div>
 
         </div>
-      ` : ''
-}
-    </div >
-  `;
+      ` : ''}
+    </div>
+    `;
 }
 
 function renderRecorder(id, type, targetText) {
@@ -543,16 +539,16 @@ function renderRecorder(id, type, targetText) {
 
   if (isCurrent && isRecording) {
     return `
-  < button class="bg-rose-100 text-rose-600 px-4 py-2 rounded-full font-bold flex items-center gap-2 animate-pulse" >
-    <i data-lucide="mic" class="w-4 h-4"></i> Listening...
-      </button >
-  `;
+      <button class="bg-rose-100 text-rose-600 px-4 py-2 rounded-full font-bold flex items-center gap-2 animate-pulse">
+        <i data-lucide="mic" class="w-4 h-4"></i> Listening...
+      </button>
+    `;
   }
 
   if (isCurrent && score !== null) {
     const colorClass = score >= 80 ? 'text-green-600 bg-green-50 border-green-200' : 'text-orange-600 bg-orange-50 border-orange-200';
     return `
-  < div class="flex items-center gap-3" >
+      <div class="flex items-center gap-3">
         <div class="text-right">
             <div class="text-xs text-slate-400">You said: "${transcript}"</div>
             <div class="font-bold text-sm ${score >= 80 ? 'text-green-600' : 'text-orange-500'}">${feedback}</div>
@@ -564,14 +560,14 @@ function renderRecorder(id, type, targetText) {
         <button onclick="startRecording(${id}, '${type}', '${safeText}')" class="p-2 bg-slate-100 rounded-full hover:bg-slate-200">
             <i data-lucide="rotate-ccw" class="w-4 h-4 text-slate-500"></i>
         </button>
-      </div >
-  `;
+      </div>
+    `;
   }
 
   return `
-  < button onclick = "startRecording(${id}, '${type}', '${safeText}')" class="bg-blue-50 text-blue-600 hover:bg-blue-100 px-4 py-2 rounded-full font-bold text-sm flex items-center gap-2 transition-colors" >
-    <i data-lucide="mic" class="w-4 h-4"></i> Record
-    </button >
+    <button onclick="startRecording(${id}, '${type}', '${safeText}')" class="bg-blue-50 text-blue-600 hover:bg-blue-100 px-4 py-2 rounded-full font-bold text-sm flex items-center gap-2 transition-colors">
+      <i data-lucide="mic" class="w-4 h-4"></i> Record
+    </button>
   `;
 }
 
@@ -595,7 +591,7 @@ function renderPrintView() {
 
   if (format === 'list') {
     contentHtml = `
-  < table class="w-full text-sm border-collapse" >
+          <table class="w-full text-sm border-collapse">
             <thead>
               <tr class="bg-slate-100">
                 <th class="border border-black p-2 w-10 text-center">No.</th>
@@ -614,11 +610,11 @@ function renderPrintView() {
                 </tr>
               `).join('')}
             </tbody>
-          </table >
-  `;
+          </table>
+        `;
   } else if (format === 'test-meaning') {
     contentHtml = `
-  < table class="w-full text-sm border-collapse" >
+          <table class="w-full text-sm border-collapse">
             <thead>
               <tr class="bg-slate-100">
                 <th class="border border-black p-2 w-10 text-center">No.</th>
@@ -637,11 +633,11 @@ function renderPrintView() {
                 </tr>
               `).join('')}
             </tbody>
-          </table >
-  `;
+          </table>
+        `;
   } else if (format === 'test-spelling') {
     contentHtml = `
-  < table class="w-full text-sm border-collapse" >
+          <table class="w-full text-sm border-collapse">
             <thead>
               <tr class="bg-slate-100">
                 <th class="border border-black p-2 w-10 text-center">No.</th>
@@ -662,16 +658,15 @@ function renderPrintView() {
                 </tr>
               `).join('')}
             </tbody>
-          </table >
-  `;
+          </table>
+        `;
   } else if (format === 'test-example') {
     contentHtml = `
-  < div class="space-y-6" >
-    ${
-      items.map((item, i) => {
-        if (!item.sentence) return '';
-        const masked = item.sentence.replace(new RegExp(`\\b${item.word}\\b`, 'gi'), '_______');
-        return `
+          <div class="space-y-6">
+            ${items.map((item, i) => {
+      if (!item.sentence) return '';
+      const masked = item.sentence.replace(new RegExp(`\\b${item.word}\\b`, 'gi'), '_______');
+      return `
                 <div class="avoid-break border-b border-slate-300 pb-4">
                   <div class="flex gap-4">
                     <span class="font-bold w-6 text-center">${i + 1}.</span>
@@ -685,15 +680,13 @@ function renderPrintView() {
                   <div class="mt-2 ml-10 text-xs text-slate-400 italic">Hint: ${item.meaning}</div>
                 </div>
               `;
-      }).join('')
-}
-          </div >
-  `;
+    }).join('')}
+          </div>
+        `;
   } else if (format === 'cards') {
     contentHtml = `
-  < div class="grid grid-cols-2 border-l border-t border-slate-300" >
-    ${
-      items.map((item) => `
+          <div class="grid grid-cols-2 border-l border-t border-slate-300">
+            ${items.map((item) => `
               <div class="avoid-break border-r border-b border-slate-300 h-40 flex flex-col items-center justify-center text-center p-4 relative">
                 <span class="absolute top-2 left-2 text-xs text-slate-400">No. ${item.id}</span>
                 <p class="text-2xl font-bold mb-2">${item.word}</p>
@@ -704,13 +697,12 @@ function renderPrintView() {
                 <span class="absolute -bottom-1 -left-1 w-2 h-2 border-l border-b border-black"></span>
                 <span class="absolute -bottom-1 -right-1 w-2 h-2 border-r border-b border-black"></span>
               </div>
-            `).join('')
-}
-          </div >
-  `;
+            `).join('')}
+          </div>
+        `;
   } else if (format === 'foldable') {
     contentHtml = `
-  < div class="relative" >
+          <div class="relative">
             <p class="text-center text-xs italic mb-2 text-slate-400">--- Center Fold Line ---</p>
             <div class="grid grid-cols-2 border-2 border-black">
               ${items.map((item, i) => `
@@ -724,13 +716,13 @@ function renderPrintView() {
               `).join('')}
             </div>
             <div class="absolute top-6 bottom-0 left-1/2 w-px border-l-2 border-dashed border-slate-400 transform -translate-x-1/2 pointer-events-none"></div>
-          </div >
-  `;
+          </div>
+        `;
   }
 
   return `
-  < div class="print-container bg-white font-serif text-black" >
-      < !--Control Bar-- >
+    <div class="print-container bg-white font-serif text-black">
+      <!-- Control Bar -->
       <div class="no-print fixed top-0 left-0 right-0 bg-slate-800 text-white p-4 flex justify-between items-center shadow z-50">
         <div class="flex items-center gap-4">
           <button onclick="backToApp()" class="flex items-center gap-2 hover:text-blue-300">
@@ -747,25 +739,25 @@ function renderPrintView() {
         </button>
       </div>
 
-      <!--Spacer -->
+      <!-- Spacer -->
       <div class="h-24 no-print"></div>
 
-      <!--Paper -->
-  <div class="paper">
-    <header class="border-b-2 border-black pb-2 mb-6 flex justify-between items-end avoid-break">
-      <div>
-        <h1 class="text-xl font-bold">${APP_META.title}</h1>
-        <p class="text-sm">${APP_META.subTitle} - ${getTitle()}</p>
-      </div>
-      <div class="text-right text-sm">
-        <p>Date: ${date}</p>
-        <div class="mt-4 border-b border-black w-32"></div>
-        <p class="text-xs">Name</p>
-      </div>
-    </header>
+      <!-- Paper -->
+      <div class="paper">
+        <header class="border-b-2 border-black pb-2 mb-6 flex justify-between items-end avoid-break">
+          <div>
+            <h1 class="text-xl font-bold">${APP_META.title}</h1>
+            <p class="text-sm">${APP_META.subTitle} - ${getTitle()}</p>
+          </div>
+          <div class="text-right text-sm">
+            <p>Date: ${date}</p>
+            <div class="mt-4 border-b border-black w-32"></div>
+            <p class="text-xs">Name</p>
+          </div>
+        </header>
 
-    ${contentHtml}
-  </div>
-    </div >
-  `;
+        ${contentHtml}
+      </div>
+    </div>
+    `;
 }
